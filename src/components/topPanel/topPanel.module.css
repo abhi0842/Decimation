@@ -1,0 +1,66 @@
+.Container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.panelContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+.panelContainer h1 {
+  font-size: 24px;
+  color: rgb(244, 243, 243);
+  margin: 0;
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Consistent 8px gap between Instruction and Guide buttons */
+}
+
+.panelButton {
+  height: 36px;
+  padding: 0 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.panelButton:hover {
+  background-color: #268eb4;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.buttonIcon {
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+.panelContainer h1 {
+  font-size: 1.2rem;
+  color: rgb(244, 243, 243);
+  margin-left: 10px;
+  text-align: left;
+}
+.panelButton {
+  font-size: 0.8rem;
+  padding: 4px 8px;
+}
+}

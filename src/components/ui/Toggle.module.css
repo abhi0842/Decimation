@@ -1,0 +1,67 @@
+.toggleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0 14px;
+}
+
+.labelCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.toggleLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2b4a;
+}
+
+.subLabel {
+  font-size: 11.5px;
+  color: #5a6f8f;
+}
+
+.switch {
+  position: relative;
+  width: 50px;
+  height: 28px;
+  flex: none;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.sliderToggle {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background: #cbd5e1;
+  border-radius: 28px;
+  transition: 0.25s;
+}
+
+.sliderToggle:before {
+  content: "";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 3px;
+  top: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.25s;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
+}
+
+.switch input:checked + .sliderToggle {
+  background: #2563eb;
+}
+
+.switch input:checked + .sliderToggle:before {
+  transform: translateX(22px);
+}

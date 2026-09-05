@@ -1,0 +1,77 @@
+.callout {
+  border-radius: 12px;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  margin-top: 14px;
+  border: 1px solid;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  animation: fadeUp 0.3s ease;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.body {
+  flex: 1;
+}
+
+.title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.safe {
+  background: #d1fae5;
+  border-color: #86efac;
+  color: #065f46;
+}
+.safe .icon {
+  background: #059669;
+  color: white;
+}
+
+.danger {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}
+.danger .icon {
+  background: #dc2626;
+  color: white;
+}
+
+.neutral {
+  background: #dbeafe;
+  border-color: #93b4e8;
+  color: #1a2b4a;
+}
+.neutral .icon {
+  background: #2563eb;
+  color: white;
+}
+
+.info {
+  background: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+.info .icon {
+  background: #d97706;
+  color: white;
+}

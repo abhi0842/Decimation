@@ -1,0 +1,40 @@
+:root {
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #1a2b4a;
+  background-color: #f0f5ff;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: auto;
+  min-height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background: linear-gradient(160deg, #f0f5ff 0%, #e0ebff 40%, #f5f8ff 100%);
+  background-attachment: fixed;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.2);
+  color: #1d4ed8;
+}
