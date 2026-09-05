@@ -3,141 +3,140 @@ import { DecimationContext } from "../../context/DecimationContext";
 import Slider from "../ui/Slider";
 import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
-import Formula from "../ui/Formula";
 import Readout from "../ui/Readout";
 import SpectrumPlot from "../plot/SpectrumPlot";
+import FoldingAnimation from "../aliasing/FoldingAnimation";
+import WagonWheelDemo from "../aliasing/WagonWheelDemo";
 import styles from "./Steps.module.css";
 
 export default function Step2Rule() {
-  const {
-    M, setM, fs, fsNew, nyqNew, tones, overCount, markAction,
-  } = useContext(DecimationContext);
-
-  const msgType = overCount > 0 ? "danger" : "safe";
-  const msgTitle = overCount > 0
-    ? `<b>${overCount} tone${overCount > 1 ? "s" : ""} above new Nyquist.</b>`
-    : "<b>All tones fit in the new band.</b>";
-  const msgBody = overCount > 0
-    ? `The LPF on the next page must remove them before you downsample.`
-    : `Still design the LPF — it is what guarantees safety for <i>any</i> signal, not just these two tones.`;
+  const { M, fs, fsNew, nyqNew, tones, activeTones, overCount, markAction } =
+    useContext(DecimationContext);
 
   return (
     <div className={styles.stepWrap}>
       <div className={styles.stepHead}>
         <div className={styles.stepNum}>2</div>
         <div>
-          <div className={styles.stepTitle}>The rule before downsampling</div>
+          <div className={styles.stepTitle}>
+            Pick M and visualize the aliasing limit
+          </div>
           <div className={styles.stepDesc}>
-            Pick the integer downsampling factor <b>M</b>.
-            The new sampling rate becomes <b>f<sub>s</sub>/M</b> and the new Nyquist
-            limit is half of that. Everything above the new Nyquist must be removed by a filter <b>before</b> you keep every M-th sample.
+            M is how many samples you&apos;ll skip. Bigger M → fewer samples kept, but a
+            stricter limit on allowed frequencies. Don&apos;t stress the math — the
+            animations below show what goes wrong if you break the rule.
           </div>
         </div>
       </div>
 
       <Callout
         type="neutral"
-        icon="📐"
-        title="Golden rule of decimation"
+        icon="🧠"
+        title="Golden rule (memorize this first)"
       >
-        <b>Filter first. Downsample second.</b><br />
-        Swapping the order causes <i>aliasing</i> — high frequencies fold back into the low band and are indistinguishable from the real signal.
+        <b>Filter first, then keep every M-th sample.</b> If you reverse the order,
+        high frequencies mirror into the low band and you can never tell them apart
+        again. That mirroring is <b>aliasing</b>.
       </Callout>
-
-      <Formula title="Rates after ↓M">
-        <span className="eq"><b>New rate:</b>&nbsp; f<sub>s</sub>' = f<sub>s</sub> / M &nbsp;=&nbsp; {fs} / {M} &nbsp;=&nbsp; <b>{Math.round(fsNew)} Hz</b></span><br />
-        <span className="eq"><b>New Nyquist:</b>&nbsp; f<sub>N</sub>' = f<sub>s</sub>' / 2 &nbsp;=&nbsp; <b style={{ color: "#dc2626" }}>{Math.round(nyqNew)} Hz</b></span><br />
-        Requirement for no aliasing after LPF: &nbsp; f<sub>signal</sub> ≤ <b>f<sub>N</sub>'</b>
-      </Formula>
 
       <div className={styles.grid2}>
         <div>
-          <Panel title="Downsample factor" right="↓M">
+          <Panel title="Downsample factor M" right="↓M">
             <Slider
               id="in-m"
-              label="M (integer factor)"
+              label="M (how many samples you skip)"
               value={M}
               min={2}
               max={8}
               step={1}
-              onChange={(v) => { setM(v); markAction("SET_M"); }}
+              onChange={(v) => markAction && markAction("SET_M", v)}
               formatter={(v) => "M = " + v}
               accent="amber"
-              subLabel={`keeps samples 0, M, 2M, 3M, ...`}
+              subLabel={`keeps 1 out of every ${M} samples`}
+            />
+            <Slider
+              id="in-fs-view"
+              label="f<sub>s</sub> (set in Step 1)"
+              value={fs}
+              min={600}
+              max={2000}
+              step={10}
+              onChange={() => {}}
+              formatter={(v) => v + " Hz"}
+              disabled
             />
           </Panel>
 
-          <Panel title="Computed limits">
+          <Panel title="What this means">
             <div className={styles.readoutGrid}>
               <Readout
-                label="New rate f<sub>s</sub>'"
+                label="New rate"
                 value={Math.round(fsNew) + " Hz"}
                 color="blue"
-                hint="every M-th sample"
+                hint="f<sub>s</sub> divided by M"
               />
               <Readout
-                label="New Nyquist limit"
+                label="New limit"
                 value={Math.round(nyqNew) + " Hz"}
                 color="red"
-                hint="max safe frequency after ↓M"
+                hint="1/2 of the new rate"
               />
               <Readout
-                label="Compression ratio"
-                value={`${M}:1`}
+                label="Samples kept"
+                value={`1 in ${M}`}
                 color="green"
-                hint={`1/${M} the samples`}
+                hint={`${Math.round(100 / M)}% of original`}
               />
               <Readout
                 label="Tones over limit"
                 value={overCount + ""}
                 color={overCount > 0 ? "red" : "green"}
-                hint="must be filtered out"
+                hint="will alias unless filtered"
               />
             </div>
           </Panel>
+
+          <Callout
+            type={overCount > 0 ? "danger" : "safe"}
+            icon={overCount > 0 ? "⚠️" : "✅"}
+            title={
+              overCount > 0
+                ? `${overCount} tone${overCount > 1 ? "s" : ""} ${
+                    overCount > 1 ? "are" : "is"
+                  } ABOVE the new limit — must be filtered first.`
+                : "All tones fit within the new limit — but still learn the pattern below."
+            }
+          >
+            {overCount > 0
+              ? `Go to Step 3 and build the filter that removes them before you decimate.`
+              : `For any realistic signal there are always frequencies above the limit; the filter is what makes decimation safe.`}
+          </Callout>
         </div>
 
         <div>
-          <Panel title="Spectrum with danger zone (must be filtered out)">
+          <Panel title="Animated folding — see why 'above the limit' is dangerous">
+            <FoldingAnimation tones={activeTones} fs={fs} nyqNew={nyqNew} />
+          </Panel>
+          <Panel title="Tone spectrum with danger zone marked">
             <SpectrumPlot
-              tones={tones.map(t => ({ ...t, label: t.id }))}
+              tones={activeTones.map((t) => ({ ...t, label: t.id }))}
               maxFreq={fs / 2}
               dangerFrom={nyqNew}
               limitLine={nyqNew}
               limitLabel="new Nyquist"
-              height={185}
+              height={175}
               legend={[
-                { color: "#2563eb", label: "Tone A" },
-                ...(tones.length > 1 ? [{ color: "#0284c7", label: "Tone B" }] : []),
-                { color: "#fecaca", border: "1px solid #dc2626", label: "↑ must be removed by LPF" },
+                ...activeTones.map((t) => ({ color: t.color, label: `Tone ${t.id} (${Math.round(t.f)} Hz)` })),
+                {
+                  color: "#fecaca",
+                  border: "1px solid #dc2626",
+                  label: "↑ frequencies that will alias if not filtered",
+                },
               ]}
             />
           </Panel>
-
-          <Callout type={msgType} icon={overCount > 0 ? "⚠️" : "✅"} title={msgTitle}>
-            {msgBody}
-          </Callout>
-
-          <Panel title="What happens if you skip the LPF?" subtitle="a single click will take you there">
-            <div className={styles.aliasingDemo}>
-              <div className={styles.demoCol}>
-                <div className={styles.demoBadge}>❌ Wrong</div>
-                <div className={styles.demoTitle}>downsample → filter</div>
-                <div className={styles.demoDesc}>
-                  High frequencies fold into the low band
-                  (they <i>alias</i>) and no later filter can undo it.
-                </div>
-              </div>
-              <div className={styles.demoArrow}>≠</div>
-              <div className={styles.demoCol}>
-                <div className={`${styles.demoBadge} ${styles.good}`}>✅ Correct</div>
-                <div className={styles.demoTitle}>filter → downsample</div>
-                <div className={styles.demoDesc}>
-                  High frequencies are <i>removed first</i>,
-                  so keeping every M-th sample is safe.
-                </div>
-              </div>
-            </div>
+          <Panel title="Classic 'wagon wheel' demo — aliasing in time">
+            <WagonWheelDemo />
           </Panel>
         </div>
       </div>

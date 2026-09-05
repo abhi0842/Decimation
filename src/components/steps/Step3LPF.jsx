@@ -1,218 +1,261 @@
 import { useContext } from "react";
 import { DecimationContext } from "../../context/DecimationContext";
 import Slider from "../ui/Slider";
+import Toggle from "../ui/Toggle";
 import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
-import Formula from "../ui/Formula";
 import Readout from "../ui/Readout";
 import TimePlot from "../plot/TimePlot";
 import SpectrumPlot from "../plot/SpectrumPlot";
 import styles from "./Steps.module.css";
 
+function makeSamples(tonesList, fs, dur = 0.03) {
+  const N = Math.max(2, Math.round(fs * dur));
+  const out = new Array(N);
+  for (let n = 0; n < N; n++) {
+    const t = n / fs;
+    let s = 0;
+    tonesList.forEach((tn) => (s += tn.a * Math.sin(2 * Math.PI * tn.f * t)));
+    out[n] = { n, t, y: s };
+  }
+  return out;
+}
+
 export default function Step3LPF() {
   const {
-    fc, setFc, order, setOrder,
-    fs, fcClamped, orderOdd, nyqNew, transWidth, h, tones, fTones, overCount,
-    snapFcToNyquist, markAction,
+    fc,
+    setFc,
+    order,
+    setOrder,
+    fs,
+    fcClamped,
+    orderOdd,
+    nyqNew,
+    transWidth,
+    h,
+    activeTones,
+    fTones,
+    overCount,
+    snapFcToNyquist,
+    bypassLPF,
+    setBypassLPF,
   } = useContext(DecimationContext);
 
   const highStill = fTones.filter((t) => t.f > nyqNew && t.gain >= 0.25).length;
 
-  let expType = "neutral", expTitle = "", expBody = "";
-  if (highStill > 0) {
-    expType = "danger";
-    expTitle = "⚠️ High frequencies are still leaking through.";
-    expBody =
-      "Increase the <b>filter order</b> (sharper transition) or lower <b>f<sub>c</sub></b>. Stopband attenuation must be deep before decimation.";
-  } else if (overCount > 0) {
-    expType = "safe";
-    expTitle = `✅ Content above new Nyquist (${Math.round(nyqNew)} Hz) is strongly attenuated.`;
-    expBody = "This filtered signal is now safe to downsample. Proceed to the final step!";
-  } else {
-    expType = "neutral";
-    expTitle = "LPF is applied.";
-    expBody =
-      "Raise a tone above the new Nyquist or increase M to watch the filter strip it away. Higher order → sharper roll-off around f<sub>c</sub>.";
-  }
+  const expType = bypassLPF
+    ? "danger"
+    : highStill > 0
+    ? "danger"
+    : overCount > 0
+    ? "safe"
+    : "neutral";
+  const expIcon = bypassLPF
+    ? "⛔"
+    : highStill > 0
+    ? "⚠️"
+    : overCount > 0
+    ? "✅"
+    : "ℹ️";
+  const expTitle = bypassLPF
+    ? "Filter BYPASSED — on the next page every high tone aliases."
+    : highStill > 0
+    ? `${highStill} high tone${highStill > 1 ? "s" : ""} still leaking through.`
+    : overCount > 0
+    ? `Content above new Nyquist (${Math.round(nyqNew)} Hz) is gone — ready to decimate.`
+    : "Filter applied. Raise a tone above the limit or use a preset to see it at work.";
+  const expBody = bypassLPF
+    ? `This is the WRONG order on purpose, so you can compare the output next. Toggle it back off to use the real filter.`
+    : highStill > 0
+    ? `Increase the <b>filter order</b> (sharper knee) or lower <b>f<sub>c</sub></b>.`
+    : overCount > 0
+    ? `Those high tones are gone. Proceed — decimation is now safe.`
+    : `Try a preset with multiple tones; it's visually clearer what the filter cuts.`;
 
   return (
     <div className={styles.stepWrap}>
       <div className={styles.stepHead}>
         <div className={styles.stepNum}>3</div>
         <div>
-          <div className={styles.stepTitle}>Apply the FIR low-pass filter</div>
+          <div className={styles.stepTitle}>Design the low-pass filter (the guard dog)</div>
           <div className={styles.stepDesc}>
-            Design a real FIR low-pass filter using the <b>windowed-sinc</b> method with a Hamming window.
-            Choose the <b>cutoff frequency</b> f<sub>c</sub> ≤ new Nyquist, and the <b>filter order N</b>
-            (number of taps — higher = sharper cutoff = more delay).
+            This is the FIR filter that eats high frequencies before decimation.
+            f<sub>c</sub> = &quot;everything above me goes away.&quot; Order = how sharply it
+            cuts. Toggle the bypass to understand the danger of skipping this step.
           </div>
         </div>
       </div>
 
       <div className={styles.pipeline}>
         <div className={`${styles.pipeBlock} ${styles.active}`}>
-          <div className={styles.label}>Input</div>x[n] raw
+          <div className={styles.label}>Raw</div>x[n]
+        </div>
+        <div className={styles.pipeArrow}>→</div>
+        <div
+          className={`${styles.pipeBlock} ${styles.active}`}
+          style={{
+            borderColor: bypassLPF ? "#dc2626" : "#2563eb",
+            background: bypassLPF ? "#fef2f2" : "#dbeafe",
+          }}
+        >
+          <div className={styles.label}>{bypassLPF ? "BYPASSED ❌" : "FIR LPF"}</div>
+          {bypassLPF ? "no filter" : `N=${orderOdd}, f<sub>c</sub>=${Math.round(fcClamped)}Hz`}
         </div>
         <div className={styles.pipeArrow}>→</div>
         <div className={`${styles.pipeBlock} ${styles.active}`}>
-          <div className={styles.label}>FIR LPF</div>order {orderOdd}, f<sub>c</sub> {Math.round(fcClamped)} Hz
-        </div>
-        <div className={styles.pipeArrow}>→</div>
-        <div className={`${styles.pipeBlock} ${styles.active}`}>
-          <div className={styles.label}>Output</div>x<sub>f</sub>[n] filtered
+          <div className={styles.label}>Filtered</div>x<sub>f</sub>[n]
         </div>
       </div>
 
-      <Formula
-        title="Windowed-sinc FIR design (Hamming window)"
-      >
-        Ideal sinc:&nbsp;
-        <span className="eq">
-          h<sub>ideal</sub>[k] = 2f<sub>c</sub>/f<sub>s</sub> · sinc(2π·f<sub>c</sub>/f<sub>s</sub> · k)
-        </span>
-        <br />
-        Hamming:&nbsp;
-        <span className="eq">
-          w[n] = 0.54 − 0.46·cos(2πn/(N−1))
-        </span>
-        <br />
-        Final:&nbsp;
-        <span className="eq">
-          h[n] = h<sub>ideal</sub>[n − (N−1)/2] · w[n]
-        </span>,
-        then normalize DC gain to 1.
-      </Formula>
-
       <div className={styles.grid2}>
         <div>
-          <Panel title="FIR low-pass parameters" right="windowed-sinc">
-            <Slider
-              id="in-fc"
-              label="Cutoff f<sub>c</sub>"
-              value={fc}
-              min={20}
-              max={fs / 2 - 5}
-              step={5}
-              onChange={(v) => { setFc(v); markAction("SET_LPF"); }}
-              formatter={(v) => Math.round(v) + " Hz"}
-              accent="green"
+          <Panel title="Filter controls" right={bypassLPF ? "BYPASSED" : "ACTIVE"}>
+            <Toggle
+              label="Bypass the filter (show WRONG order)"
+              subLabel="Flip this to see aliasing in the final step"
+              checked={bypassLPF}
+              onChange={setBypassLPF}
             />
-            <Slider
-              id="in-order"
-              label="Filter order N (taps)"
-              value={order}
-              min={11}
-              max={121}
-              step={2}
-              onChange={(v) => { setOrder(v); markAction("SET_LPF"); }}
-              formatter={(v) => "N = " + (v | 1)}
-            />
-            <button
-              className={styles.btnRec}
-              onClick={() => { snapFcToNyquist(); markAction("SET_LPF"); }}
-            >
-              🎯 Set f<sub>c</sub> = new Nyquist (recommended)
-            </button>
+            <div style={{ height: bypassLPF ? 0 : 0 }} />
+            {!bypassLPF && (
+              <>
+                <Slider
+                  id="in-fc"
+                  label="Cutoff f<sub>c</sub>"
+                  value={fc}
+                  min={20}
+                  max={fs / 2 - 5}
+                  step={5}
+                  onChange={(v) => setFc(v)}
+                  formatter={(v) => Math.round(v) + " Hz"}
+                  accent="green"
+                />
+                <Slider
+                  id="in-order"
+                  label="Filter order N (taps)"
+                  value={order}
+                  min={11}
+                  max={121}
+                  step={2}
+                  onChange={(v) => setOrder(v)}
+                  formatter={(v) => "N = " + (v | 1)}
+                />
+                <button className={styles.btnRec} onClick={snapFcToNyquist}>
+                  🎯 Set f<sub>c</sub> = new Nyquist (recommended start)
+                </button>
+              </>
+            )}
 
             <div className={styles.readoutGrid}>
               <Readout
                 label="New Nyquist"
                 value={Math.round(nyqNew) + " Hz"}
                 color="red"
-                hint="ideal upper bound for fc"
+                hint="ideal hard ceiling"
               />
               <Readout
                 label="Current f<sub>c</sub>"
-                value={Math.round(fcClamped) + " Hz"}
+                value={bypassLPF ? "∞ Hz" : Math.round(fcClamped) + " Hz"}
                 color="green"
-                hint={fcClamped > nyqNew ? "above limit ⚠" : "safe ✓"}
+                hint={
+                  bypassLPF
+                    ? "filter is off"
+                    : fcClamped > nyqNew
+                    ? "above limit ⚠"
+                    : "safe ✓"
+                }
               />
               <Readout
-                label="Filter order"
+                label="Order N"
                 value={"N = " + orderOdd}
                 color="blue"
-                hint={orderOdd + " taps"}
+                hint={`${orderOdd} coefficients`}
               />
               <Readout
-                label="Transition width"
-                value={"~" + transWidth + " Hz"}
+                label="Transition"
+                value={bypassLPF ? "—" : "~" + transWidth + " Hz"}
                 color="amber"
-                hint="Hamming rule: 3.3·fs/N"
+                hint={bypassLPF ? "" : "3.3·fs/N Hamming rule"}
               />
             </div>
           </Panel>
 
-          <Panel title="Interpretation">
-            <Callout
-              type={expType}
-              icon={
-                highStill > 0 ? "⚠️" :
-                overCount > 0 ? "✅" : "ℹ️"
-              }
-              title={expTitle}
-            >
-              {expBody}
-            </Callout>
-          </Panel>
+          <Callout type={expType} icon={expIcon} title={expTitle}>
+            {expBody}
+          </Callout>
+
+          {bypassLPF ? (
+            <div className={styles.bypassBanner}>
+              <b>Teaching mode ON:</b> everything on the <i>right</i> of this page now looks
+              unchanged — because the filter is doing nothing. The next step will reveal
+              the damage.
+            </div>
+          ) : (
+            <div className={styles.passBanner}>
+              <b>Intuition tip:</b> low order → soft, gradual slope (leaks high tones).
+              High order → abrupt, sharp slope (strips them fast). You trade computation
+              for steepness.
+            </div>
+          )}
         </div>
 
         <div>
           <div className={styles.sideBySide}>
-            <Panel title="Raw signal (before LPF)" right="time">
+            <Panel title="Before filter" right="time">
               <TimePlot
-                tones={tones}
+                tones={activeTones}
+                samples={makeSamples(activeTones, fs)}
                 fs={fs}
                 durationSec={0.03}
-                rateLabel={`raw x[n]  ·  ${fs} Hz`}
-                height={130}
+                rateLabel={`x[n] raw`}
+                height={135}
               />
             </Panel>
-            <Panel title="After LPF (filtered output)" right="time">
+            <Panel title="After filter" right={bypassLPF ? "NO CHANGE ⚠" : "time"}>
               <TimePlot
                 tones={fTones}
+                samples={makeSamples(fTones, fs)}
                 fs={fs}
                 durationSec={0.03}
-                rateLabel={`x_f[n] after FIR (N=${orderOdd})`}
-                height={130}
+                rateLabel={bypassLPF ? "filter bypassed" : `x_f[n]`}
+                height={135}
               />
             </Panel>
           </div>
-
           <div className={styles.sideBySide}>
             <Panel title="Raw spectrum" right="freq">
               <SpectrumPlot
-                tones={tones.map((t) => ({ ...t, label: t.id }))}
+                tones={activeTones.map((t) => ({ ...t, label: t.id }))}
                 maxFreq={fs / 2}
                 height={155}
               />
             </Panel>
-            <Panel title="Filtered spectrum + |H(f)| overlay" right="freq">
+            <Panel
+              title="Filtered spectrum + |H(f)|"
+              right={bypassLPF ? "flattened" : "freq"}
+            >
               <SpectrumPlot
                 tones={fTones.map((t) => ({
                   ...t,
-                  label: t.id + (t.attenuated ? " (↓)" : ""),
+                  label: t.id + (t.attenuated ? " ↓" : ""),
                   color: t.attenuated ? "#94a3b8" : t.color,
                 }))}
                 maxFreq={fs / 2}
                 limitLine={fcClamped}
-                limitLabel="f_c"
-                filterH={h}
+                limitLabel={bypassLPF ? "" : "f_c"}
+                filterH={bypassLPF ? null : h}
                 fs={fs}
                 height={155}
-                legend={[
-                  { color: "#2563eb", label: "Passed" },
-                  { color: "#94a3b8", label: "Attenuated" },
-                  { color: "#d97706", label: "Cutoff f_c" },
-                ]}
+                legend={bypassLPF
+                  ? [{ color: "#dc2626", label: "filter OFF — all tones pass" }]
+                  : [
+                      { color: "#2563eb", label: "pass band" },
+                      { color: "#94a3b8", label: "attenuated" },
+                      { color: "#d97706", label: "cutoff f_c" },
+                    ]}
               />
             </Panel>
           </div>
-
-          <Callout type="neutral" icon="🔍">
-            The thin blue curve is <b>|H(f)|</b> — the filter's magnitude response.
-            Notice how the sharpness of the knee around f<sub>c</sub> grows with order N.
-            Tones above f<sub>c</sub> grow dim as the filter strips them.
-          </Callout>
         </div>
       </div>
     </div>

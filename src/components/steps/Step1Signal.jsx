@@ -1,10 +1,8 @@
 import { useContext } from "react";
 import { DecimationContext } from "../../context/DecimationContext";
 import Slider from "../ui/Slider";
-import Toggle from "../ui/Toggle";
 import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
-import Formula from "../ui/Formula";
 import Readout from "../ui/Readout";
 import TimePlot from "../plot/TimePlot";
 import SpectrumPlot from "../plot/SpectrumPlot";
@@ -12,50 +10,58 @@ import styles from "./Steps.module.css";
 
 export default function Step1Signal() {
   const {
-    fs, setFs,
-    toneA, setToneA,
-    toneB, setToneB,
-    tones, markAction,
+    fs,
+    setFs,
+    tones,
+    activeTones,
+    updateTone,
+    addTone,
+    removeTone,
+    presetId,
+    applyPreset,
+    signalPresets,
+    currentPreset,
+    markAction,
   } = useContext(DecimationContext);
 
   const maxF = fs / 2;
+
+  const legendItems = activeTones.map((t) => ({
+    color: t.color,
+    label: `Tone ${t.id} (${Math.round(t.f)} Hz)`,
+  }));
 
   return (
     <div className={styles.stepWrap}>
       <div className={styles.stepHead}>
         <div className={styles.stepNum}>1</div>
         <div>
-          <div className={styles.stepTitle}>Build the raw signal x[n]</div>
+          <div className={styles.stepTitle}>Choose a signal (one click = a whole story)</div>
           <div className={styles.stepDesc}>
-            Create a discrete-time test signal with up to two sinusoidal tones.
-            The lecture defaults (fs = 1200 Hz, Tone A = 150 Hz, Tone B = 500 Hz)
-            are perfect for later seeing decimation in action.
+            Students don&apos;t all learn the same way — pick a preset, then tweak it.
+            Each preset highlights a different decimation story.
           </div>
         </div>
       </div>
 
-      <Callout
-        type="info"
-        icon="💡"
-        title="Tip — keep Tone B at 500 Hz for now"
-      >
-        With M = 3 the new Nyquist becomes 200 Hz. The 500 Hz tone sits well above it,
-        so it will have to be removed by the low-pass filter — otherwise it aliases!
-      </Callout>
-
-      <Formula
-        title="How x[n] is built"
-      >
-        <span className="eq"><b>x[n]</b> = A<sub>A</sub>·sin(2π·f<sub>A</sub>·n/f<sub>s</sub>) &nbsp;+&nbsp; A<sub>B</sub>·sin(2π·f<sub>B</sub>·n/f<sub>s</sub>)</span><br />
-        where <b>n ∈ ℤ</b> is the sample index and <b>t = n/f<sub>s</sub></b> is the corresponding time.
-      </Formula>
+      <div className={styles.presetsRow}>
+        {signalPresets.map((p) => (
+          <button
+            key={p.id}
+            className={`${styles.preset} ${presetId === p.id ? styles.presetActive : ""}`}
+            onClick={() => applyPreset(p.id)}
+          >
+            <div className={styles.presetName}>{p.name}</div>
+            {p.id !== "custom" && (
+              <div className={styles.presetStory}>{p.story}</div>
+            )}
+          </button>
+        ))}
+      </div>
 
       <div className={styles.grid2}>
         <div>
-          <Panel
-            title="Sampling rate"
-            right="global"
-          >
+          <Panel title="Sampling rate" right="global">
             <Slider
               id="in-fs"
               label="f<sub>s</sub>"
@@ -63,103 +69,129 @@ export default function Step1Signal() {
               min={600}
               max={2000}
               step={10}
-              onChange={(v) => { setFs(v); markAction("EXPLORE_SIGNAL"); }}
+              onChange={(v) => setFs(v)}
               formatter={(v) => v + " Hz"}
             />
             <div style={{ marginTop: 10 }}>
               <Readout
-                label="Nyquist f<sub>s</sub>/2"
+                label="Upper limit (Nyquist)"
                 value={Math.round(fs / 2) + " Hz"}
-                color="gray"
-                hint="max freq without aliasing at this rate"
+                color="blue"
+                hint="max frequency this sampling rate can represent"
               />
             </div>
           </Panel>
 
-          <Panel title="Tone A" right="always on">
-            <Slider
-              id="in-fa"
-              label="Frequency f<sub>A</sub>"
-              value={toneA.f}
-              min={0}
-              max={maxF}
-              step={5}
-              onChange={(v) => { setToneA({ ...toneA, f: v }); markAction("EXPLORE_SIGNAL"); }}
-              formatter={(v) => v + " Hz"}
-            />
-            <Slider
-              id="in-aa"
-              label="Amplitude A<sub>A</sub>"
-              value={toneA.a}
-              min={0}
-              max={1.5}
-              step={0.05}
-              onChange={(v) => { setToneA({ ...toneA, a: v }); markAction("EXPLORE_SIGNAL"); }}
-              formatter={(v) => (+v).toFixed(2)}
-            />
+          <Panel
+            title={`Tone controls (${activeTones.length} active)`}
+            right={
+              <button
+                className={styles.addBtn}
+                onClick={() => addTone()}
+                disabled={tones.length >= 6}
+                style={{ opacity: tones.length >= 6 ? 0.5 : 1 }}
+              >
+                + add tone
+              </button>
+            }
+          >
+            {tones.map((t) => (
+              <div key={t.id} className={styles.toneCard}>
+                <div className={styles.toneHead}>
+                  <span
+                    className={styles.toneChip}
+                    style={{
+                      background: t.color + "22",
+                      color: t.color,
+                      borderColor: t.color + "55",
+                    }}
+                  >
+                    Tone {t.id}
+                  </span>
+                  <button
+                    className={styles.toneX}
+                    onClick={() => removeTone(t.id)}
+                    disabled={tones.length <= 1}
+                    aria-label={`Remove tone ${t.id}`}
+                  >
+                    ×
+                  </button>
+                </div>
+                <Slider
+                  id={"f-" + t.id}
+                  label="Frequency"
+                  value={t.f}
+                  min={0}
+                  max={maxF}
+                  step={5}
+                  onChange={(v) => updateTone(t.id, { f: v })}
+                  formatter={(v) => v + " Hz"}
+                  accent={t.id === "A" ? "" : t.id === "B" ? "toneB" : "amber"}
+                />
+                <Slider
+                  id={"a-" + t.id}
+                  label="Amplitude"
+                  value={t.a}
+                  min={0.1}
+                  max={1.5}
+                  step={0.05}
+                  onChange={(v) => updateTone(t.id, { a: v })}
+                  formatter={(v) => (+v).toFixed(2)}
+                />
+              </div>
+            ))}
           </Panel>
 
-          <Panel title="Tone B" subtitle="Add a second component to see filtering">
-            <Toggle
-              label="Include Tone B"
-              subLabel="Disable to study a pure single tone"
-              checked={toneB.on}
-              onChange={(v) => { setToneB({ ...toneB, on: v }); markAction("EXPLORE_SIGNAL"); }}
-            />
-            <div className={toneB.on ? "toneB" : ""}>
-              <Slider
-                id="in-fb"
-                label="Frequency f<sub>B</sub>"
-                value={toneB.f}
-                min={0}
-                max={maxF}
-                step={5}
-                onChange={(v) => { setToneB({ ...toneB, f: v }); markAction("EXPLORE_SIGNAL"); }}
-                formatter={(v) => v + " Hz"}
-                disabled={!toneB.on}
-              />
-              <Slider
-                id="in-ab"
-                label="Amplitude A<sub>B</sub>"
-                value={toneB.a}
-                min={0}
-                max={1.5}
-                step={0.05}
-                onChange={(v) => { setToneB({ ...toneB, a: v }); markAction("EXPLORE_SIGNAL"); }}
-                formatter={(v) => (+v).toFixed(2)}
-                disabled={!toneB.on}
-              />
-            </div>
-          </Panel>
+          <Callout
+            type="info"
+            icon="🎨"
+            title={currentPreset?.story || "Tweak freely"}
+          >
+            Hover anywhere on a spectrum or time plot to see the exact frequency or sample index.
+            Use the presets to learn the standard cases — then go wild with &quot;Custom&quot;.
+          </Callout>
         </div>
 
         <div>
-          <Panel title="Raw signal — time domain x[n]">
+          <Panel title="Time domain — x[n]">
             <TimePlot
-              tones={tones}
+              tones={activeTones}
+              samples={useToneSamples(activeTones, fs)}
               fs={fs}
               durationSec={0.03}
-              rateLabel={`sampled at ${fs} Hz (N = ${Math.round(fs * 0.03)} samples)`}
-              height={165}
+              rateLabel={`${fs} Hz · ${activeTones.length} tone${
+                activeTones.length > 1 ? "s" : ""
+              }`}
+              height={175}
             />
           </Panel>
-          <Panel title="Raw spectrum (0 → f<sub>s</sub>/2)">
+          <Panel title="Frequency domain — spectrum bars">
             <SpectrumPlot
-              tones={tones.map(t => ({ ...t, label: t.id }))}
+              tones={activeTones.map((t) => ({ ...t, label: t.id }))}
               maxFreq={fs / 2}
-              height={165}
-              legend={[
-                { color: "#2563eb", label: "Tone A" },
-                ...(toneB.on ? [{ color: "#0284c7", label: "Tone B" }] : []),
-              ]}
+              height={195}
+              legend={legendItems.length ? legendItems : undefined}
             />
-            <Callout type="neutral" icon="📏">
-              Each tone in the <b>time domain</b> becomes a sharp vertical line in the <b>frequency domain</b>.
-              This is the core intuition behind the Fourier transform.
+            <Callout type="neutral" icon="🔍">
+              <b>Time ↔ frequency connection:</b> each sine in time becomes a vertical bar in frequency.
+              The <i>height</i> shows the amplitude; the <i>position</i> shows the frequency.
+              This is the core intuition of DSP.
             </Callout>
           </Panel>
         </div>
       </div>
     </div>
   );
+}
+
+function useToneSamples(activeTones, fs) {
+  const N = Math.max(2, Math.round(fs * 0.03));
+  const out = new Array(N);
+  for (let n = 0; n < N; n++) {
+    const t = n / fs;
+    let s = 0;
+    activeTones.forEach((tn) => (s += tn.a * Math.sin(2 * Math.PI * tn.f * t)));
+    out[n] = { n, t, y: s };
+  }
+  return out;
 }

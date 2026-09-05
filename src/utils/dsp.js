@@ -109,7 +109,80 @@ export function transitionWidth(order, fs) {
 
 export function fmtHz(v) { return Math.round(v) + ' Hz'; }
 
+export const signalPresets = [
+  {
+    id: 'picket',
+    name: '🎯 Picket Fence (50 + 650 Hz)',
+    fs: 1200,
+    tones: [
+      { id: 'A', f: 50, a: 1.0, color: '#2563eb' },
+      { id: 'B', f: 650, a: 0.8, color: '#dc2626', on: true },
+    ],
+    M: 3,
+    order: 61,
+    story: 'One clear low tone (kept) + one clear high tone (filtered out). Great intro.',
+  },
+  {
+    id: 'fourband',
+    name: '🌈 Four Tones Across Bands',
+    fs: 1200,
+    tones: [
+      { id: 'A', f: 70, a: 1.0, color: '#2563eb' },
+      { id: 'B', f: 260, a: 0.9, color: '#0284c7', on: true, bExtra: { f: 500, a: 0.7 } },
+    ],
+    M: 3,
+    order: 81,
+    four: [
+      { id: 'A', f: 70, a: 1.0, color: '#2563eb' },
+      { id: 'B', f: 180, a: 0.9, color: '#0284c7' },
+      { id: 'C', f: 370, a: 0.8, color: '#d97706' },
+      { id: 'D', f: 620, a: 0.7, color: '#dc2626' },
+    ],
+    story: 'Four tones: A,B survive; C,D are removed. Watch the LPF cut the line.',
+  },
+  {
+    id: 'edge',
+    name: '⚡ Near-Limit Edge Case',
+    fs: 1200,
+    tones: [
+      { id: 'A', f: 120, a: 1.0, color: '#2563eb' },
+      { id: 'B', f: 420, a: 0.9, color: '#dc2626', on: true, bExtra: { f: 190, a: 0.7 } },
+    ],
+    M: 3,
+    order: 101,
+    extra: [{ id: 'C', f: 210, a: 0.75, color: '#d97706' }],
+    story: '210 Hz sits just above the 200 Hz new Nyquist. Watch the LPF struggle if order is low.',
+  },
+  {
+    id: 'custom',
+    name: '🛠️ Custom Tones (Lecture Default)',
+    fs: 1200,
+    tones: [
+      { id: 'A', f: 150, a: 1.0, color: '#2563eb' },
+      { id: 'B', f: 500, a: 0.7, color: '#0284c7', on: true },
+    ],
+    M: 3,
+    order: 51,
+    story: 'Build your own signal with the sliders below.',
+  },
+];
+
+export function tonesFromPreset(preset) {
+  if (!preset) return [];
+  const t = [];
+  if (preset.four) {
+    preset.four.forEach((x) => t.push(x));
+    return t;
+  }
+  t.push({ ...preset.tones[0] });
+  const b = preset.tones[1];
+  if (b && (b.on ?? true)) t.push({ id: b.id, f: b.f, a: b.a, color: b.color });
+  if (preset.extra) preset.extra.forEach((x) => t.push(x));
+  return t;
+}
+
 export function activeTones(state) {
+  if (state._rawTones && state._rawTones.length) return state._rawTones;
   const t = [{ id: 'A', f: state.toneA.f, a: state.toneA.a, color: '#2563eb' }];
   if (state.toneB.on) t.push({ id: 'B', f: state.toneB.f, a: state.toneB.a, color: '#0284c7' });
   return t;
