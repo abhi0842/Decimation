@@ -21,7 +21,6 @@ export default function Step1Signal() {
     applyPreset,
     signalPresets,
     currentPreset,
-    markAction,
   } = useContext(DecimationContext);
 
   const maxF = fs / 2;
@@ -36,11 +35,8 @@ export default function Step1Signal() {
       <div className={styles.stepHead}>
         <div className={styles.stepNum}>1</div>
         <div>
-          <div className={styles.stepTitle}>Choose a signal (one click = a whole story)</div>
-          <div className={styles.stepDesc}>
-            Students don&apos;t all learn the same way — pick a preset, then tweak it.
-            Each preset highlights a different decimation story.
-          </div>
+          <div className={styles.stepTitle}>Choose a signal </div>
+         
         </div>
       </div>
 
@@ -142,14 +138,7 @@ export default function Step1Signal() {
             ))}
           </Panel>
 
-          <Callout
-            type="info"
-            icon="🎨"
-            title={currentPreset?.story || "Tweak freely"}
-          >
-            Hover anywhere on a spectrum or time plot to see the exact frequency or sample index.
-            Use the presets to learn the standard cases — then go wild with &quot;Custom&quot;.
-          </Callout>
+          
         </div>
 
         <div>
@@ -172,11 +161,7 @@ export default function Step1Signal() {
               height={195}
               legend={legendItems.length ? legendItems : undefined}
             />
-            <Callout type="neutral" icon="🔍">
-              <b>Time ↔ frequency connection:</b> each sine in time becomes a vertical bar in frequency.
-              The <i>height</i> shows the amplitude; the <i>position</i> shows the frequency.
-              This is the core intuition of DSP.
-            </Callout>
+           
           </Panel>
         </div>
       </div>

@@ -7,7 +7,6 @@ export default function FoldingAnimation({ tones, fs, nyqNew }) {
   const rafRef = useRef(null);
 
   useEffect(() => {
-    setProgress(0);
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     const start = performance.now();
     const dur = 2400;

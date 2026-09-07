@@ -46,7 +46,7 @@ export default function Step4Decimate() {
     : overCount > 0
     ? "safe"
     : "neutral";
-  const finalIcon = hasLeakage ? "⚠️" : overCount > 0 ? "🎉" : "ℹ️";
+  const finalIcon = hasLeakage ? "" : overCount > 0 ? "" : "ℹ";
   const finalTitle = hasLeakage
     ? "Leakage detected — LPF is too weak."
     : overCount > 0
@@ -67,10 +67,7 @@ export default function Step4Decimate() {
         <div>
           <div className={styles.stepTitle}>Decimate the filtered signal</div>
           <div className={styles.stepDesc}>
-            Take the LPF output and keep <b>every M-th sample</b>.
-            Because high frequencies were removed first, the result is
-            <b> alias-free</b>. Green samples are kept; red samples are discarded.
-            Watch the animation unfold!
+           
           </div>
         </div>
       </div>

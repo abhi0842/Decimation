@@ -68,7 +68,7 @@ export const DecimationProvider = ({ children }) => {
   const currentGuideStep = steps[guideStepIdx];
   const canProceed = !currentGuideStep?.requiredAction || !!actions[currentGuideStep.requiredAction];
 
-  const markAction = (action) => {
+  const markAction = useCallback((action) => {
     setActions((prev) => {
       const next = { ...prev, [action]: true };
       if (
@@ -82,9 +82,9 @@ export const DecimationProvider = ({ children }) => {
       }
       return next;
     });
-  };
+  }, [currentGuideStep, guideStepIdx, steps]);
 
-  const applyPreset = (id) => {
+  const applyPreset = useCallback((id) => {
     const preset = signalPresets.find((p) => p.id === id);
     if (!preset) return;
     const newTones = presetInitialTones(preset);
@@ -96,7 +96,7 @@ export const DecimationProvider = ({ children }) => {
     setFc(Math.round(newNyq / 5) * 5);
     setTones(newTones);
     markAction('EXPLORE_SIGNAL');
-  };
+  }, [markAction]);
 
   const updateTone = (id, patch) => {
     setTones((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
@@ -143,13 +143,13 @@ export const DecimationProvider = ({ children }) => {
 
   const resetToRecommended = useCallback(() => {
     applyPreset('picket');
-  }, []);
+  }, [applyPreset]);
 
   const snapFcToNyquist = useCallback(() => {
     const nyq = fs / M / 2;
     setFc(Math.round(nyq / 5) * 5);
     markAction('SET_LPF');
-  }, [fs, M]);
+  }, [fs, M, markAction]);
 
   const activeTones = tones.filter((t) => t.on !== false);
 

@@ -51,12 +51,12 @@ export default function Step3LPF() {
     ? "safe"
     : "neutral";
   const expIcon = bypassLPF
-    ? "⛔"
+    ? ""
     : highStill > 0
-    ? "⚠️"
+    ? ""
     : overCount > 0
-    ? "✅"
-    : "ℹ️";
+    ? ""
+    : "";
   const expTitle = bypassLPF
     ? "Filter BYPASSED — on the next page every high tone aliases."
     : highStill > 0
@@ -69,20 +69,16 @@ export default function Step3LPF() {
     : highStill > 0
     ? `Increase the <b>filter order</b> (sharper knee) or lower <b>f<sub>c</sub></b>.`
     : overCount > 0
-    ? `Those high tones are gone. Proceed — decimation is now safe.`
-    : `Try a preset with multiple tones; it's visually clearer what the filter cuts.`;
+    ? ``
+    : ``;
 
   return (
     <div className={styles.stepWrap}>
       <div className={styles.stepHead}>
         <div className={styles.stepNum}>3</div>
         <div>
-          <div className={styles.stepTitle}>Design the low-pass filter (the guard dog)</div>
-          <div className={styles.stepDesc}>
-            This is the FIR filter that eats high frequencies before decimation.
-            f<sub>c</sub> = &quot;everything above me goes away.&quot; Order = how sharply it
-            cuts. Toggle the bypass to understand the danger of skipping this step.
-          </div>
+          <div className={styles.stepTitle}>Design the low-pass filter </div>
+          
         </div>
       </div>
 
@@ -98,8 +94,8 @@ export default function Step3LPF() {
             background: bypassLPF ? "#fef2f2" : "#dbeafe",
           }}
         >
-          <div className={styles.label}>{bypassLPF ? "BYPASSED ❌" : "FIR LPF"}</div>
-          {bypassLPF ? "no filter" : `N=${orderOdd}, f<sub>c</sub>=${Math.round(fcClamped)}Hz`}
+          <div className={styles.label}>{bypassLPF ? "BYPASSED " : "FIR LPF"}</div>
+          {bypassLPF ? "no filter" : `N=${orderOdd}, fc=${Math.round(fcClamped)}Hz`}
         </div>
         <div className={styles.pipeArrow}>→</div>
         <div className={`${styles.pipeBlock} ${styles.active}`}>
@@ -141,7 +137,7 @@ export default function Step3LPF() {
                   formatter={(v) => "N = " + (v | 1)}
                 />
                 <button className={styles.btnRec} onClick={snapFcToNyquist}>
-                  🎯 Set f<sub>c</sub> = new Nyquist (recommended start)
+                  Set fc = new Nyquist 
                 </button>
               </>
             )}
@@ -151,10 +147,10 @@ export default function Step3LPF() {
                 label="New Nyquist"
                 value={Math.round(nyqNew) + " Hz"}
                 color="red"
-                hint="ideal hard ceiling"
+
               />
               <Readout
-                label="Current f<sub>c</sub>"
+                label="Current fc"
                 value={bypassLPF ? "∞ Hz" : Math.round(fcClamped) + " Hz"}
                 color="green"
                 hint={
@@ -169,7 +165,7 @@ export default function Step3LPF() {
                 label="Order N"
                 value={"N = " + orderOdd}
                 color="blue"
-                hint={`${orderOdd} coefficients`}
+               
               />
               <Readout
                 label="Transition"
@@ -184,19 +180,8 @@ export default function Step3LPF() {
             {expBody}
           </Callout>
 
-          {bypassLPF ? (
-            <div className={styles.bypassBanner}>
-              <b>Teaching mode ON:</b> everything on the <i>right</i> of this page now looks
-              unchanged — because the filter is doing nothing. The next step will reveal
-              the damage.
-            </div>
-          ) : (
-            <div className={styles.passBanner}>
-              <b>Intuition tip:</b> low order → soft, gradual slope (leaks high tones).
-              High order → abrupt, sharp slope (strips them fast). You trade computation
-              for steepness.
-            </div>
-          )}
+         
+          
         </div>
 
         <div>

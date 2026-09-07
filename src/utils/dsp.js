@@ -112,7 +112,7 @@ export function fmtHz(v) { return Math.round(v) + ' Hz'; }
 export const signalPresets = [
   {
     id: 'picket',
-    name: '🎯 Picket Fence (50 + 650 Hz)',
+    name: ' Picket Fence (50 + 650 Hz)',
     fs: 1200,
     tones: [
       { id: 'A', f: 50, a: 1.0, color: '#2563eb' },
@@ -120,11 +120,11 @@ export const signalPresets = [
     ],
     M: 3,
     order: 61,
-    story: 'One clear low tone (kept) + one clear high tone (filtered out). Great intro.',
+
   },
   {
     id: 'fourband',
-    name: '🌈 Four Tones Across Bands',
+    name: ' Four Tones Across Bands',
     fs: 1200,
     tones: [
       { id: 'A', f: 70, a: 1.0, color: '#2563eb' },
@@ -138,11 +138,10 @@ export const signalPresets = [
       { id: 'C', f: 370, a: 0.8, color: '#d97706' },
       { id: 'D', f: 620, a: 0.7, color: '#dc2626' },
     ],
-    story: 'Four tones: A,B survive; C,D are removed. Watch the LPF cut the line.',
   },
   {
     id: 'edge',
-    name: '⚡ Near-Limit Edge Case',
+    name: 'Near-Limit Edge Case',
     fs: 1200,
     tones: [
       { id: 'A', f: 120, a: 1.0, color: '#2563eb' },
@@ -151,11 +150,11 @@ export const signalPresets = [
     M: 3,
     order: 101,
     extra: [{ id: 'C', f: 210, a: 0.75, color: '#d97706' }],
-    story: '210 Hz sits just above the 200 Hz new Nyquist. Watch the LPF struggle if order is low.',
+    
   },
   {
     id: 'custom',
-    name: '🛠️ Custom Tones (Lecture Default)',
+    name: ' Custom Tones (Default)',
     fs: 1200,
     tones: [
       { id: 'A', f: 150, a: 1.0, color: '#2563eb' },
@@ -163,7 +162,6 @@ export const signalPresets = [
     ],
     M: 3,
     order: 51,
-    story: 'Build your own signal with the sliders below.',
   },
 ];
 

@@ -5,18 +5,6 @@ export default function WagonWheelDemo() {
   const cvRef = useRef(null);
   const phaseRef = useRef(0);
 
-  useEffect(() => {
-    let raf;
-    const render = () => {
-      phaseRef.current += 0.04;
-      draw();
-      raf = requestAnimationFrame(render);
-    };
-    raf = requestAnimationFrame(render);
-    return () => cancelAnimationFrame(raf);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const draw = () => {
     const cv = cvRef.current;
     if (!cv) return;
@@ -149,7 +137,7 @@ export default function WagonWheelDemo() {
     drawPanel({
       y0: 0,
       label: 'High-frequency sine (f = ' + fReal.toFixed(1) + ' Hz)',
-      sub: 'as it would look at a very high sample rate (smooth)',
+      sub: '',
       freq: '',
       col: '#dc2626',
     });
@@ -185,14 +173,21 @@ export default function WagonWheelDemo() {
     ctx.textAlign = 'start';
   };
 
+  useEffect(() => {
+    let raf;
+    const render = () => {
+      phaseRef.current += 0.04;
+      draw();
+      raf = requestAnimationFrame(render);
+    };
+    raf = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
   return (
     <div className={styles.wagWrap}>
       <canvas ref={cvRef} style={{ width: '100%' }} />
-      <div className={styles.wagCaption}>
-        <b>Intuition:</b> a high-frequency sine (top) sampled too slowly looks <i>identical</i> to a
-        low-frequency sine (bottom). No later math can tell them apart — that is
-        <b> aliasing</b>. The only defense: remove those high frequencies <i>before</i> you downsample.
-      </div>
+      
     </div>
   );
 }

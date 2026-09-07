@@ -30,14 +30,14 @@ const TopPanel = () => {
   return (
     <div className={styles.Container}>
       <div className={styles.panelContainer}>
-        <h1>Decimation Lab: Low-Pass Filter → Downsample (Multirate DSP)</h1>
+        <h1>Decimation Lab</h1>
         <div className={styles.buttonContainer}>
           <button
             ref={buttonRef}
             className={styles.panelButton}
             onClick={toggleInstruction}
           >
-            <span className={styles.buttonIcon}>ℹ️</span>
+            <span className={styles.buttonIcon}></span>
             Instruction
           </button>
           <button
@@ -46,7 +46,7 @@ const TopPanel = () => {
             onClick={toggleGuide}
             style={{ backgroundColor: guideActive ? "#2ecc71" : "" }}
           >
-            <span className={styles.buttonIcon}>🎓</span>
+            <span className={styles.buttonIcon}></span>
             Guided Tutor
           </button>
         </div>

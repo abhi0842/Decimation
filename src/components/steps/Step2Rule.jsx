@@ -21,30 +21,17 @@ export default function Step2Rule() {
           <div className={styles.stepTitle}>
             Pick M and visualize the aliasing limit
           </div>
-          <div className={styles.stepDesc}>
-            M is how many samples you&apos;ll skip. Bigger M → fewer samples kept, but a
-            stricter limit on allowed frequencies. Don&apos;t stress the math — the
-            animations below show what goes wrong if you break the rule.
-          </div>
+          
         </div>
       </div>
 
-      <Callout
-        type="neutral"
-        icon="🧠"
-        title="Golden rule (memorize this first)"
-      >
-        <b>Filter first, then keep every M-th sample.</b> If you reverse the order,
-        high frequencies mirror into the low band and you can never tell them apart
-        again. That mirroring is <b>aliasing</b>.
-      </Callout>
-
+      
       <div className={styles.grid2}>
         <div>
           <Panel title="Downsample factor M" right="↓M">
             <Slider
               id="in-m"
-              label="M (how many samples you skip)"
+              label="M "
               value={M}
               min={2}
               max={8}
@@ -52,7 +39,7 @@ export default function Step2Rule() {
               onChange={(v) => markAction && markAction("SET_M", v)}
               formatter={(v) => "M = " + v}
               accent="amber"
-              subLabel={`keeps 1 out of every ${M} samples`}
+              
             />
             <Slider
               id="in-fs-view"
@@ -73,32 +60,32 @@ export default function Step2Rule() {
                 label="New rate"
                 value={Math.round(fsNew) + " Hz"}
                 color="blue"
-                hint="f<sub>s</sub> divided by M"
+           
               />
               <Readout
                 label="New limit"
                 value={Math.round(nyqNew) + " Hz"}
                 color="red"
-                hint="1/2 of the new rate"
+             
               />
               <Readout
                 label="Samples kept"
                 value={`1 in ${M}`}
                 color="green"
-                hint={`${Math.round(100 / M)}% of original`}
+                
               />
               <Readout
                 label="Tones over limit"
                 value={overCount + ""}
                 color={overCount > 0 ? "red" : "green"}
-                hint="will alias unless filtered"
+              
               />
             </div>
           </Panel>
 
           <Callout
             type={overCount > 0 ? "danger" : "safe"}
-            icon={overCount > 0 ? "⚠️" : "✅"}
+            icon={overCount > 0 ? "" : ""}
             title={
               overCount > 0
                 ? `${overCount} tone${overCount > 1 ? "s" : ""} ${
@@ -108,15 +95,13 @@ export default function Step2Rule() {
             }
           >
             {overCount > 0
-              ? `Go to Step 3 and build the filter that removes them before you decimate.`
-              : `For any realistic signal there are always frequencies above the limit; the filter is what makes decimation safe.`}
+              ? ``
+              : ``}
           </Callout>
         </div>
 
         <div>
-          <Panel title="Animated folding — see why 'above the limit' is dangerous">
-            <FoldingAnimation tones={activeTones} fs={fs} nyqNew={nyqNew} />
-          </Panel>
+         
           <Panel title="Tone spectrum with danger zone marked">
             <SpectrumPlot
               tones={activeTones.map((t) => ({ ...t, label: t.id }))}

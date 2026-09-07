@@ -8,10 +8,10 @@ import GuidedModal from "../guidedModal/GuidedModal";
 import styles from "./DecimationLab.module.css";
 
 const steps = [
-  { id: 0, label: "1. Build Signal", icon: "🎵" },
-  { id: 1, label: "2. The Rule", icon: "📐" },
-  { id: 2, label: "3. Apply LPF", icon: "🎚️" },
-  { id: 3, label: "4. Decimate", icon: "⬇️" },
+  { id: 0, label: "1. Build Signal"},
+  { id: 1, label: "2. The Rule"},
+  { id: 2, label: "3. Apply LPF"},
+  { id: 3, label: "4. Decimate" },
 ];
 
 export default function DecimationLab() {
@@ -25,20 +25,7 @@ export default function DecimationLab() {
 
   return (
     <div className={styles.wrap}>
-      <header className={styles.hero}>
-        <div className={styles.badge}>
-          <span className={styles.dot} />
-          VIRTUAL LAB · MULTIRATE DSP
-        </div>
-        <h1>
-          Decimation Lab: <span>LPF → Downsample</span>
-        </h1>
-        <p className={styles.sub}>
-          Design a real FIR low-pass filter (order + cutoff), apply it to your
-          signal, then decimate the filtered output. The correct order is:
-          <b> filter first, then keep every M-th sample.</b>
-        </p>
-      </header>
+      
 
       <div className={styles.tabbar}>
         {steps.map((s) => (
