@@ -53,8 +53,6 @@ export const DecimationProvider = ({ children }) => {
 
   const [activeStep, setActiveStep] = useState(0);
   const [decimAnimProgress, setDecimAnimProgress] = useState(1);
-  const [showAliasingDemo, setShowAliasingDemo] = useState(false);
-  const [showFormula, setShowFormula] = useState(true);
 
   const [guideActive, setGuideActive] = useState(false);
   const [guideStepIdx, setGuideStepIdx] = useState(0);
@@ -177,12 +175,13 @@ export const DecimationProvider = ({ children }) => {
   const outTones = [];
   survivingTones.forEach((t) => {
     if (t.f <= nyqNew + 3) {
-      outTones.push({ f: t.f, a: t.a * t.gain, color: t.color, label: t.id });
+      // filteredTones already applies |H(f)| to `a`; do not attenuate twice.
+      outTones.push({ f: t.f, a: t.a, color: t.color, label: t.id });
     } else if (t.gain > 0.05) {
       const landed = foldFreq(t.f, fsNew);
       outTones.push({
         f: landed,
-        a: t.a * t.gain,
+        a: t.a,
         color: '#dc2626',
         label: t.id + ' alias',
         glow: true,
@@ -305,10 +304,6 @@ export const DecimationProvider = ({ children }) => {
         setDecimAnimProgress,
 
         // Misc
-        showAliasingDemo,
-        setShowAliasingDemo,
-        showFormula,
-        setShowFormula,
 
         // Guide
         guideActive,

@@ -495,3 +495,28 @@
   margin-top: 10px;
 }
 .passBanner b { color: #064e3b; }
+
+.forecastList {
+  color: #334155;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.forecastList p { margin: 0 0 10px; }
+
+.forecastRow {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(64px, auto);
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  margin: 6px 0;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  background: #fff7f7;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+}
+
+.forecastRow strong { color: #b91c1c; }
+.forecastNote { color: #5a6f8f; font-size: 12px; }

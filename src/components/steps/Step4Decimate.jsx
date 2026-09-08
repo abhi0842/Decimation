@@ -59,7 +59,8 @@ export default function Step4Decimate() {
     : `No tone is currently above the new Nyquist. Raise a frequency above ${Math.round(nyqNew)} Hz or increase M to stress-test the chain.`;
 
   const displayTones = fTones.map((t) => ({
-    f: t.f, a: t.a * t.gain, color: t.color, id: t.id,
+    // `a` is already the post-filter amplitude in fTones.
+    f: t.f, a: t.a, color: t.color, id: t.id,
   }));
   const plotTones = displayTones.length ? displayTones : outTones;
 
@@ -70,7 +71,7 @@ export default function Step4Decimate() {
         <div>
           <div className={styles.stepTitle}>Decimate the filtered signal</div>
           <div className={styles.stepDesc}>
-           
+            Watch the samples: green points become the output sequence y[n]; red points are discarded. The output has the same duration, but only one out of every {M} input samples.
           </div>
         </div>
       </div>

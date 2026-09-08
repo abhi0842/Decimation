@@ -78,7 +78,9 @@ export default function Step3LPF() {
         <div className={styles.stepNum}>3</div>
         <div>
           <div className={styles.stepTitle}>Design the low-pass filter </div>
-          
+          <div className={styles.stepDesc}>
+            Set the cutoff at or below the new Nyquist limit. A higher order makes the transition sharper, so tones near the cutoff are suppressed more strongly, at the cost of more computation and delay.
+          </div>
         </div>
       </div>
 

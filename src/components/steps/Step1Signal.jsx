@@ -2,7 +2,6 @@ import { useContext } from "react";
 import { DecimationContext } from "../../context/DecimationContext";
 import Slider from "../ui/Slider";
 import Panel from "../ui/Panel";
-import Callout from "../ui/Callout";
 import Readout from "../ui/Readout";
 import TimePlot from "../plot/TimePlot";
 import SpectrumPlot from "../plot/SpectrumPlot";
@@ -35,7 +34,9 @@ export default function Step1Signal() {
         <div className={styles.stepNum}>1</div>
         <div>
           <div className={styles.stepTitle}>Choose a signal </div>
-         
+          <div className={styles.stepDesc}>
+            Start with a low tone you want to keep and a high tone that may need filtering. The spectrum on the right is the best place to see which frequencies are present.
+          </div>
         </div>
       </div>
 

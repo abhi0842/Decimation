@@ -5,13 +5,12 @@ import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
 import Readout from "../ui/Readout";
 import SpectrumPlot from "../plot/SpectrumPlot";
-import FoldingAnimation from "../aliasing/FoldingAnimation";
-import WagonWheelDemo from "../aliasing/WagonWheelDemo";
 import styles from "./Steps.module.css";
 
 export default function Step2Rule() {
   const { M, setM, fs, fsNew, nyqNew, activeTones, overCount } =
     useContext(DecimationContext);
+  const atRisk = activeTones.filter((tone) => tone.f > nyqNew);
 
   return (
     <div className={styles.stepWrap}>
@@ -21,7 +20,9 @@ export default function Step2Rule() {
           <div className={styles.stepTitle}>
             Pick M and visualize the aliasing limit
           </div>
-          
+          <div className={styles.stepDesc}>
+            Keep one sample and discard the next M − 1. A larger M reduces the output rate and its usable frequency range.
+          </div>
         </div>
       </div>
 
@@ -120,8 +121,28 @@ export default function Step2Rule() {
               ]}
             />
           </Panel>
-          <Panel title="Classic 'wagon wheel' demo — aliasing in time">
-            <WagonWheelDemo />
+          <Panel title="Live alias forecast">
+            {atRisk.length ? (
+              <div className={styles.forecastList}>
+                <p>Without the LPF, these tones fold into the output band:</p>
+                {atRisk.map((tone) => {
+                  const folded = Math.abs(((tone.f + fsNew / 2) % fsNew) - fsNew / 2);
+                  return (
+                    <div className={styles.forecastRow} key={tone.id}>
+                      <span style={{ color: tone.color, fontWeight: 800 }}>Tone {tone.id}: {Math.round(tone.f)} Hz</span>
+                      <span>appears as</span>
+                      <strong>{Math.round(folded)} Hz</strong>
+                    </div>
+                  );
+                })}
+                <p className={styles.forecastNote}>That false low-frequency content is an alias. Step 3 removes it before it can fold.</p>
+              </div>
+            ) : (
+              <div className={styles.forecastList}>
+                <p>All current tones are inside the output band: 0–{Math.round(nyqNew)} Hz.</p>
+                <p className={styles.forecastNote}>Try increasing M or raising a tone frequency to create an aliasing risk.</p>
+              </div>
+            )}
           </Panel>
         </div>
       </div>
