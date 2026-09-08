@@ -20,7 +20,6 @@ export default function Step1Signal() {
     presetId,
     applyPreset,
     signalPresets,
-    currentPreset,
   } = useContext(DecimationContext);
 
   const maxF = fs / 2;

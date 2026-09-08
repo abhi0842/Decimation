@@ -63,6 +63,7 @@ export default function SpectrumPlot({
   height = 160,
   legend,
   title,
+  barWidth = 14,
 }) {
   const canvasRef = useRef(null);
   const metaRef = useRef(null);
@@ -73,13 +74,42 @@ export default function SpectrumPlot({
     if (!cv) return;
     const { ctx, w, h } = setupCanvas(cv, height);
     ctx.clearRect(0, 0, w, h);
-    const padL = 40,
-      padB = 28,
-      padT = 14;
+    const padL = 44,
+      padB = 32,
+      padT = 16;
     const plotW = w - padL - 10;
     const plotH = h - padB - padT;
 
     metaRef.current = { padL, padB, padT, plotW, plotH, w, h, maxFreq, tones };
+    
+    // Y-axis labels (amplitude)
+    ctx.strokeStyle = "#e2e8f0";
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = '9.5px "JetBrains Mono", monospace';
+    ctx.textAlign = "right";
+    const yTicks = 4;
+    for (let i = 0; i <= yTicks; i++) {
+      const frac = i / yTicks;
+      const y = padT + plotH * (1 - frac);
+      ctx.setLineDash([2, 3]);
+      ctx.strokeStyle = "#e2e8f0";
+      ctx.beginPath();
+      ctx.moveTo(padL, y);
+      ctx.lineTo(w - 6, y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = "#94a3b8";
+      ctx.fillText((frac).toFixed(1), padL - 6, y + 3.5);
+    }
+    ctx.fillStyle = "#5a6f8f";
+    ctx.font = "10px Inter, sans-serif";
+    ctx.save();
+    ctx.translate(12, padT + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = "center";
+    ctx.fillText("|X(f)|", 0, 0);
+    ctx.restore();
+
     drawFreqAxis(ctx, w, h, maxFreq, padL, padB, padT);
 
     if (dangerFrom !== undefined && dangerFrom < maxFreq) {
@@ -152,33 +182,50 @@ export default function SpectrumPlot({
     const maxAmp = Math.max(...tones.map((t) => t.a), 0.001, 1);
     tones.forEach((t) => {
       if (t.f > maxFreq || t.f == null) return;
-      const x = padL + (t.f / maxFreq) * plotW;
-      const ampNorm = Math.max(t.a / maxAmp, 0.07);
+      const xCenter = padL + (t.f / maxFreq) * plotW;
+      const ampNorm = Math.max(t.a / maxAmp, 0.04);
       const y0 = h - padB;
-      const y1 = y0 - ampNorm * (plotH - 16);
-      ctx.strokeStyle = t.color;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(x, y0);
-      ctx.lineTo(x, y1);
+      const y1 = y0 - ampNorm * (plotH - 20);
+      const bw = Math.min(barWidth, plotW / Math.max(tones.length + 1, 4));
+      const barX = xCenter - bw / 2;
+      const barH = y0 - y1;
+
+      // Bar fill - gradient from bottom
+      const g = ctx.createLinearGradient(0, y0, 0, y1);
+      const hex = t.color;
+      g.addColorStop(0, hex + '33');
+      g.addColorStop(0.5, hex + '99');
+      g.addColorStop(1, hex);
+      ctx.fillStyle = g;
+      ctx.strokeStyle = hex;
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, barX, y1, bw, barH, 3);
+      ctx.fill();
       ctx.stroke();
-      ctx.fillStyle = t.color;
+
+      // Top marker / dot with glow
+      ctx.fillStyle = hex;
       if (t.glow) {
         ctx.save();
-        ctx.shadowColor = t.color;
-        ctx.shadowBlur = 12;
+        ctx.shadowColor = hex;
+        ctx.shadowBlur = 14;
       }
       ctx.beginPath();
-      ctx.arc(x, y1, 5, 0, Math.PI * 2);
+      ctx.arc(xCenter, y1, 5.5, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.8;
+      ctx.stroke();
       if (t.glow) ctx.restore();
-      if (t.label) {
-        ctx.fillStyle = t.color;
-        ctx.font = 'bold 11px "JetBrains Mono", monospace';
-        ctx.textAlign = "center";
-        const ly = y1 - 12 < padT + 12 ? y1 + 20 : y1 - 11;
-        ctx.fillText(t.label, x, ly);
-      }
+      
+      // Frequency label above bar
+      ctx.fillStyle = hex;
+      ctx.font = 'bold 10px "JetBrains Mono", monospace';
+      ctx.textAlign = "center";
+      let fLabel = Math.round(t.f) + "";
+      if (t.label) fLabel = t.label;
+      const ly = y1 - 18 < padT + 2 ? y1 + 22 : y1 - 14;
+      ctx.fillText(fLabel, xCenter, ly);
     });
     ctx.restore();
 
@@ -234,7 +281,8 @@ export default function SpectrumPlot({
     const onResize = () => render();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tones, maxFreq, dangerFrom, limitLine, limitLabel, filterH, fs, height, barWidth]);
 
   const handleMove = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();

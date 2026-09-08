@@ -113,7 +113,7 @@ export const signalPresets = [
   {
     id: 'picket',
     name: ' Picket Fence (50 + 650 Hz)',
-    fs: 1200,
+    fs: 1500,
     tones: [
       { id: 'A', f: 50, a: 1.0, color: '#2563eb' },
       { id: 'B', f: 650, a: 0.8, color: '#dc2626', on: true },
@@ -125,7 +125,7 @@ export const signalPresets = [
   {
     id: 'fourband',
     name: ' Four Tones Across Bands',
-    fs: 1200,
+    fs: 1400,
     tones: [
       { id: 'A', f: 70, a: 1.0, color: '#2563eb' },
       { id: 'B', f: 260, a: 0.9, color: '#0284c7', on: true, bExtra: { f: 500, a: 0.7 } },

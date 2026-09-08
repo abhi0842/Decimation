@@ -10,7 +10,7 @@ import WagonWheelDemo from "../aliasing/WagonWheelDemo";
 import styles from "./Steps.module.css";
 
 export default function Step2Rule() {
-  const { M, fs, fsNew, nyqNew, tones, activeTones, overCount, markAction } =
+  const { M, setM, fs, fsNew, nyqNew, activeTones, overCount } =
     useContext(DecimationContext);
 
   return (
@@ -36,7 +36,7 @@ export default function Step2Rule() {
               min={2}
               max={8}
               step={1}
-              onChange={(v) => markAction && markAction("SET_M", v)}
+              onChange={(v) => setM(v)}
               formatter={(v) => "M = " + v}
               accent="amber"
               

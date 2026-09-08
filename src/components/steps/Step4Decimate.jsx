@@ -10,7 +10,7 @@ import styles from "./Steps.module.css";
 
 export default function Step4Decimate() {
   const {
-    fs, M, fsNew, nyqNew, fcClamped, orderOdd,
+    fs, M, fsNew, nyqNew, fcClamped, orderOdd, fTones,
     survivingTones, outTones, toneResults, overCount, hasLeakage,
     decimAnimProgress, setDecimAnimProgress, markAction,
   } = useContext(DecimationContext);
@@ -58,7 +58,10 @@ export default function Step4Decimate() {
     ? `The LPF removed content above ${Math.round(nyqNew)} Hz first, then every ${M}-th sample was kept. New peaks appear in the output. Output rate = <b>${Math.round(fsNew)} Hz</b>.`
     : `No tone is currently above the new Nyquist. Raise a frequency above ${Math.round(nyqNew)} Hz or increase M to stress-test the chain.`;
 
-  const plotTones = survivingTones.length ? survivingTones : outTones;
+  const displayTones = fTones.map((t) => ({
+    f: t.f, a: t.a * t.gain, color: t.color, id: t.id,
+  }));
+  const plotTones = displayTones.length ? displayTones : outTones;
 
   return (
     <div className={styles.stepWrap}>
@@ -86,13 +89,32 @@ export default function Step4Decimate() {
         </div>
       </div>
 
-      <Formula title="Mathematics of ↓M">
-        <span className="eq">
-          <b>y[n] = x<sub>f</sub>[n·M]</b>&nbsp;&nbsp; for n ∈ ℤ
-        </span><br />
-        Output rate &nbsp;&nbsp; <b>f<sub>s</sub>' = f<sub>s</sub>/M = {Math.round(fsNew)} Hz</b><br />
-        New Nyquist &nbsp;&nbsp; <b>f<sub>N</sub>' = {Math.round(nyqNew)} Hz</b><br />
-        Since x<sub>f</sub> was bandlimited to ≤ f<sub>c</sub> ≤ f<sub>N</sub>', the output spectrum is just a stretched copy — no folding.
+      <Formula title="Mathematics of ↓M (Decimation)">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14.5, lineHeight: 1.5 }}>
+          <div><span className="eq" style={{ fontSize: 18, fontWeight: 800 }}>
+            y[n] = x<sub>f</sub>[n · M],&nbsp;&nbsp;&nbsp;&nbsp;n ∈ ℤ
+          </span></div>
+          <div style={{ paddingLeft: 4, borderLeft: '3px solid #cbd5e1', paddingTop: 4, paddingBottom: 4 }}>
+            <div>
+              <b>Input:</b> x<sub>f</sub>[n] — filtered signal at original rate <b>f<sub>s</sub> = {fs} Hz</b>
+            </div>
+            <div>
+              <b>Downsample factor:</b> keep <b>1 sample out of every M</b> → discard M−1 in between
+            </div>
+            <div>
+              <b>Output sample rate:</b> <span style={{ color: '#16a34a', fontWeight: 700 }}>f<sub>s</sub>′ = f<sub>s</sub> / M = {Math.round(fsNew)} Hz</span>
+            </div>
+            <div>
+              <b>New Nyquist limit (half of f<sub>s</sub>′):</b> <span style={{ color: '#dc2626', fontWeight: 700 }}>f<sub>N</sub>′ = f<sub>s</sub>′ / 2 = {Math.round(nyqNew)} Hz</span>
+            </div>
+            <div style={{ marginTop: 6, padding: '8px 10px', background: 'linear-gradient(135deg,#eff6ff,#dbeafe)', borderRadius: 8, border: '1px solid #bfdbfe', color: '#1e3a8a' }}>
+              <b>✓ Why filtering first is required:</b><br />
+              Since x<sub>f</sub>[n] was bandlimited to ≤ f<sub>c</sub> ≤ f<sub>N</sub>′ by the LPF in Step 3,
+              the output spectrum is a <i>stretched</i> (scaled) copy of the baseband — <b>no folding, no aliasing, no information loss</b>.
+              Skip the LPF and any energy above f<sub>N</sub>′ will fold into [0, f<sub>N</sub>′] as spurious alias peaks.
+            </div>
+          </div>
+        </div>
       </Formula>
 
       <Panel title="Summary of the decimation parameters used">
