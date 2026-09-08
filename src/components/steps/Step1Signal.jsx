@@ -33,9 +33,9 @@ export default function Step1Signal() {
       <div className={styles.stepHead}>
         <div className={styles.stepNum}>1</div>
         <div>
-          <div className={styles.stepTitle}>Choose a signal </div>
+          <div className={styles.stepTitle}>Build the input signal</div>
           <div className={styles.stepDesc}>
-            Start with a low tone you want to keep and a high tone that may need filtering. The spectrum on the right is the best place to see which frequencies are present.
+            Begin with the lecture example: a 150 Hz tone to keep and a 500 Hz tone that will alias after downsampling by 3 unless it is filtered. Then change any value and observe the result.
           </div>
         </div>
       </div>

@@ -40,7 +40,7 @@ function presetInitialTones(preset) {
 }
 
 export const DecimationProvider = ({ children }) => {
-  const startPreset = signalPresets[0];
+  const startPreset = signalPresets.find((preset) => preset.id === 'lecture') || signalPresets[0];
   const startTones = presetInitialTones(startPreset);
 
   const [presetId, setPresetId] = useState(startPreset.id);
@@ -140,7 +140,7 @@ export const DecimationProvider = ({ children }) => {
   }, [activeStep, goToStep]);
 
   const resetToRecommended = useCallback(() => {
-    applyPreset('picket');
+    applyPreset('lecture');
   }, [applyPreset]);
 
   const snapFcToNyquist = useCallback(() => {

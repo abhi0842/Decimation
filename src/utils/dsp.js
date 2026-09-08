@@ -111,6 +111,18 @@ export function fmtHz(v) { return Math.round(v) + ' Hz'; }
 
 export const signalPresets = [
   {
+    id: 'lecture',
+    name: 'Lecture example (150 + 500 Hz)',
+    story: 'The module example: with M = 3 and no LPF, 500 Hz folds to 100 Hz.',
+    fs: 1200,
+    tones: [
+      { id: 'A', f: 150, a: 1.0, color: '#2563eb' },
+      { id: 'B', f: 500, a: 0.8, color: '#dc2626', on: true },
+    ],
+    M: 3,
+    order: 81,
+  },
+  {
     id: 'picket',
     name: ' Picket Fence (50 + 650 Hz)',
     fs: 1500,

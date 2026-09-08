@@ -109,8 +109,8 @@ export default function Step3LPF() {
         <div>
           <Panel title="Filter controls" right={bypassLPF ? "BYPASSED" : "ACTIVE"}>
             <Toggle
-              label="Bypass the filter (show WRONG order)"
-              subLabel="Flip this to see aliasing in the final step"
+              label="Bypass the filter (show the no-filter failure)"
+              subLabel="Use this to reproduce the module's 500 Hz → 100 Hz alias, then turn it off to apply decimation correctly"
               checked={bypassLPF}
               onChange={setBypassLPF}
             />

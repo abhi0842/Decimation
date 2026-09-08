@@ -12,8 +12,11 @@ export default function Step4Decimate() {
   const {
     fs, M, fsNew, nyqNew, fcClamped, orderOdd, fTones,
     survivingTones, outTones, toneResults, overCount, hasLeakage,
-    decimAnimProgress, setDecimAnimProgress, markAction,
+    decimAnimProgress, setDecimAnimProgress, markAction, bypassLPF,
   } = useContext(DecimationContext);
+  const isLectureExample = fs === 1200 && M === 3 && toneResults.length === 2 &&
+    toneResults.some((tone) => Math.round(tone.origF) === 150) &&
+    toneResults.some((tone) => Math.round(tone.origF) === 500);
 
   const rafRef = useRef(null);
   const playAnim = () => {
@@ -117,6 +120,20 @@ export default function Step4Decimate() {
           </div>
         </div>
       </Formula>
+
+      {isLectureExample && (
+        <div className={`${styles.exampleStory} ${bypassLPF ? styles.exampleUnsafe : styles.exampleSafe}`}>
+          <div className={styles.exampleKicker}>Module 3 worked example</div>
+          <div className={styles.exampleFlow}>
+            <strong>1200 Hz</strong><span>÷ 3</span><strong>400 Hz output rate</strong><span>→</span><strong>200 Hz new Nyquist</strong>
+          </div>
+          {bypassLPF ? (
+            <p><b>Without the LPF:</b> 150 Hz remains at 150 Hz, while 500 Hz folds as 500 − 400 = <b>100 Hz</b>. The 100 Hz peak is an alias, not original signal content.</p>
+          ) : (
+            <p><b>With the LPF first:</b> the 500 Hz tone is removed before ↓3, so only the genuine 150 Hz tone appears at the output.</p>
+          )}
+        </div>
+      )}
 
       <Panel title="Summary of the decimation parameters used">
         <div className={styles.readoutGrid}>

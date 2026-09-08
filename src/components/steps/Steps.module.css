@@ -520,3 +520,19 @@
 
 .forecastRow strong { color: #b91c1c; }
 .forecastNote { color: #5a6f8f; font-size: 12px; }
+
+.exampleStory {
+  margin: 0 0 14px;
+  padding: 14px 16px;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #eff6ff, #f8fafc);
+  color: #1e3a5f;
+}
+
+.exampleUnsafe { border-color: #fca5a5; background: linear-gradient(135deg, #fff1f2, #fff7ed); }
+.exampleSafe { border-color: #86efac; background: linear-gradient(135deg, #ecfdf5, #eff6ff); }
+.exampleKicker { color: #2563eb; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.exampleFlow { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; margin: 8px 0; font-family: "JetBrains Mono", monospace; }
+.exampleFlow span { color: #d97706; font-weight: 800; }
+.exampleStory p { margin: 0; font-size: 13px; line-height: 1.55; }
