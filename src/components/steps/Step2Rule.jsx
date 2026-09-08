@@ -5,6 +5,7 @@ import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
 import Readout from "../ui/Readout";
 import SpectrumPlot from "../plot/SpectrumPlot";
+import AliasingAnimation from "../aliasing/AliasingAnimation";
 import styles from "./Steps.module.css";
 
 export default function Step2Rule() {
@@ -121,7 +122,8 @@ export default function Step2Rule() {
               ]}
             />
           </Panel>
-          <Panel title="Live alias forecast">
+          <Panel title="Live aliasing animation — direct downsampling">
+            <AliasingAnimation tones={activeTones} fs={fs} M={M} />
             {atRisk.length ? (
               <div className={styles.forecastList}>
                 <p>Without the LPF, these tones fold into the output band:</p>

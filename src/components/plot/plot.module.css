@@ -37,6 +37,27 @@
   color: #5a6f8f;
 }
 
+.sampleAnimation {
+  overflow-x: auto;
+  border: 1px solid #d8e0ec;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.sampleAnimation svg { display: block; width: 100%; height: auto; min-width: 620px; }
+.samplePlotTitle { fill: #1f2937; font: 600 13px Inter, sans-serif; }
+.sampleAxisLabel { fill: #475569; font: 12px Inter, sans-serif; }
+.sampleNote { fill: #64748b; font: 12px Inter, sans-serif; }
+
+.aliasAnimation {
+  overflow-x: auto;
+  border: 1px solid #d8e0ec;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.aliasAnimation svg { display: block; width: 100%; height: auto; min-width: 640px; }
+
 .legend span {
   display: flex;
   align-items: center;

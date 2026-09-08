@@ -4,14 +4,14 @@ import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
 import Formula from "../ui/Formula";
 import Readout from "../ui/Readout";
-import TimePlot from "../plot/TimePlot";
 import SpectrumPlot from "../plot/SpectrumPlot";
+import DecimationSampleAnimation from "../plot/DecimationSampleAnimation";
 import styles from "./Steps.module.css";
 
 export default function Step4Decimate() {
   const {
-    fs, M, fsNew, nyqNew, fcClamped, orderOdd, fTones,
-    survivingTones, outTones, toneResults, overCount, hasLeakage,
+    fs, M, fsNew, nyqNew, fcClamped, orderOdd,
+    survivingTones, outTones, toneResults, overCount, hasLeakage, filteredSignal,
     decimAnimProgress, setDecimAnimProgress, markAction, bypassLPF,
   } = useContext(DecimationContext);
   const isLectureExample = fs === 1200 && M === 3 && toneResults.length === 2 &&
@@ -60,12 +60,6 @@ export default function Step4Decimate() {
     : overCount > 0
     ? `The LPF removed content above ${Math.round(nyqNew)} Hz first, then every ${M}-th sample was kept. New peaks appear in the output. Output rate = <b>${Math.round(fsNew)} Hz</b>.`
     : `No tone is currently above the new Nyquist. Raise a frequency above ${Math.round(nyqNew)} Hz or increase M to stress-test the chain.`;
-
-  const displayTones = fTones.map((t) => ({
-    // `a` is already the post-filter amplitude in fTones.
-    f: t.f, a: t.a, color: t.color, id: t.id,
-  }));
-  const plotTones = displayTones.length ? displayTones : outTones;
 
   return (
     <div className={styles.stepWrap}>
@@ -148,34 +142,8 @@ export default function Step4Decimate() {
 
       <div style={{ height: 14 }} />
 
-      <div className={styles.sideBySide}>
-        <Panel
-          title="Filtered signal (input to ↓M)"
-          right={fs + " Hz"}
-        >
-          <TimePlot
-            tones={plotTones}
-            fs={fs}
-            durationSec={0.03}
-            rateLabel={"filtered x_f[n]"}
-            height={155}
-          />
-        </Panel>
-        <Panel
-          title="After decimation — green kept · red discarded"
-          right={Math.round(fsNew) + " Hz"}
-        >
-          <TimePlot
-            tones={plotTones}
-            fs={fs}
-            durationSec={0.03}
-            rateLabel={`keep every ${M}-th → ${Math.round(fsNew)} Hz`}
-            markEvery={M}
-            decimateAnim
-            animProgress={decimAnimProgress}
-            height={155}
-            showN
-          />
+      <Panel title="Keep every M-th sample" right={`${fs} Hz → ${Math.round(fsNew)} Hz`}>
+          <DecimationSampleAnimation samples={filteredSignal} M={M} progress={decimAnimProgress} />
           <div className={styles.animPanel}>
             <button className={`${styles.animBtn} ${styles.primary}`} onClick={playAnim}>
               ▶ Replay animation
@@ -187,10 +155,9 @@ export default function Step4Decimate() {
             </div>
           </div>
           <div style={{ fontSize: 12, color: "#5a6f8f", marginTop: 8, lineHeight: 1.5 }}>
-            Animation sequence: all samples appear → discarded ones (red) fade away → every M-th sample (green) glows and is relabeled as y[n].
+            Animation sequence: identify every M-th input sample → discard the rest → place the kept values on the slower output clock.
           </div>
-        </Panel>
-      </div>
+      </Panel>
 
       <div className={styles.sideBySide}>
         <Panel title="Filtered spectrum (before ↓M)" right="0 → fs/2">
