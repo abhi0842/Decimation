@@ -112,8 +112,7 @@ export function fmtHz(v) { return Math.round(v) + ' Hz'; }
 export const signalPresets = [
   {
     id: 'lecture',
-    name: 'Lecture example (150 + 500 Hz)',
-    story: 'The module example: with M = 3 and no LPF, 500 Hz folds to 100 Hz.',
+    name: 'Default example (150 + 500 Hz)',
     fs: 1200,
     tones: [
       { id: 'A', f: 150, a: 1.0, color: '#2563eb' },
@@ -166,7 +165,7 @@ export const signalPresets = [
   },
   {
     id: 'custom',
-    name: ' Custom Tones (Default)',
+    name: ' Custom Tones ',
     fs: 1200,
     tones: [
       { id: 'A', f: 150, a: 1.0, color: '#2563eb' },

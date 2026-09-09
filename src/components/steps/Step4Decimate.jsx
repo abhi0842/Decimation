@@ -67,9 +67,7 @@ export default function Step4Decimate() {
         <div className={styles.stepNum}>4</div>
         <div>
           <div className={styles.stepTitle}>Decimate the filtered signal</div>
-          <div className={styles.stepDesc}>
-            Watch the samples: green points become the output sequence y[n]; red points are discarded. The output has the same duration, but only one out of every {M} input samples.
-          </div>
+         
         </div>
       </div>
 
@@ -87,33 +85,7 @@ export default function Step4Decimate() {
         </div>
       </div>
 
-      <Formula title="Mathematics of ↓M (Decimation)">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, fontSize: 14.5, lineHeight: 1.5 }}>
-          <div><span className="eq" style={{ fontSize: 18, fontWeight: 800 }}>
-            y[n] = x<sub>f</sub>[n · M],&nbsp;&nbsp;&nbsp;&nbsp;n ∈ ℤ
-          </span></div>
-          <div style={{ paddingLeft: 4, borderLeft: '3px solid #cbd5e1', paddingTop: 4, paddingBottom: 4 }}>
-            <div>
-              <b>Input:</b> x<sub>f</sub>[n] — filtered signal at original rate <b>f<sub>s</sub> = {fs} Hz</b>
-            </div>
-            <div>
-              <b>Downsample factor:</b> keep <b>1 sample out of every M</b> → discard M−1 in between
-            </div>
-            <div>
-              <b>Output sample rate:</b> <span style={{ color: '#16a34a', fontWeight: 700 }}>f<sub>s</sub>′ = f<sub>s</sub> / M = {Math.round(fsNew)} Hz</span>
-            </div>
-            <div>
-              <b>New Nyquist limit (half of f<sub>s</sub>′):</b> <span style={{ color: '#dc2626', fontWeight: 700 }}>f<sub>N</sub>′ = f<sub>s</sub>′ / 2 = {Math.round(nyqNew)} Hz</span>
-            </div>
-            <div style={{ marginTop: 6, padding: '8px 10px', background: 'linear-gradient(135deg,#eff6ff,#dbeafe)', borderRadius: 8, border: '1px solid #bfdbfe', color: '#1e3a8a' }}>
-              <b>✓ Why filtering first is required:</b><br />
-              Since x<sub>f</sub>[n] was bandlimited to ≤ f<sub>c</sub> ≤ f<sub>N</sub>′ by the LPF in Step 3,
-              the output spectrum is a <i>stretched</i> (scaled) copy of the baseband — <b>no folding, no aliasing, no information loss</b>.
-              Skip the LPF and any energy above f<sub>N</sub>′ will fold into [0, f<sub>N</sub>′] as spurious alias peaks.
-            </div>
-          </div>
-        </div>
-      </Formula>
+     
 
       {isLectureExample && (
         <div className={`${styles.exampleStory} ${bypassLPF ? styles.exampleUnsafe : styles.exampleSafe}`}>
@@ -225,16 +197,7 @@ export default function Step4Decimate() {
         {finalBody}
       </Callout>
 
-      <Callout
-        type="info"
-        icon="📚"
-        title="Key takeaways from this lab"
-      >
-        ① <b>Filter first, then downsample.</b> Swapping them causes irrecoverable aliasing.<br />
-        ② The new Nyquist is <b>(f<sub>s</sub>/M)/2</b>. Set f<sub>c</sub> ≤ that.<br />
-        ③ Higher filter order N → sharper transition, but more computation and more delay.<br />
-        ④ Decimation is lossless <i>only</i> if the signal is properly bandlimited before ↓M.
-      </Callout>
+     
     </div>
   );
 }

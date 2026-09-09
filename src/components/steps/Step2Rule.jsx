@@ -21,9 +21,7 @@ export default function Step2Rule() {
           <div className={styles.stepTitle}>
             Pick M and visualize the aliasing limit
           </div>
-          <div className={styles.stepDesc}>
-            Keep one sample and discard the next M − 1. A larger M reduces the output rate and its usable frequency range.
-          </div>
+          
         </div>
       </div>
 
@@ -122,7 +120,7 @@ export default function Step2Rule() {
               ]}
             />
           </Panel>
-          <Panel title="Live aliasing animation — direct downsampling">
+          <Panel title="Aliasing">
             <AliasingAnimation tones={activeTones} fs={fs} M={M} />
             {atRisk.length ? (
               <div className={styles.forecastList}>
@@ -137,7 +135,7 @@ export default function Step2Rule() {
                     </div>
                   );
                 })}
-                <p className={styles.forecastNote}>That false low-frequency content is an alias. Step 3 removes it before it can fold.</p>
+                <p className={styles.forecastNote}></p>
               </div>
             ) : (
               <div className={styles.forecastList}>

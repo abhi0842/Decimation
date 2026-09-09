@@ -78,9 +78,7 @@ export default function Step3LPF() {
         <div className={styles.stepNum}>3</div>
         <div>
           <div className={styles.stepTitle}>Design the low-pass filter </div>
-          <div className={styles.stepDesc}>
-            Set the cutoff at or below the new Nyquist limit. A higher order makes the transition sharper, so tones near the cutoff are suppressed more strongly, at the cost of more computation and delay.
-          </div>
+          
         </div>
       </div>
 
@@ -109,8 +107,8 @@ export default function Step3LPF() {
         <div>
           <Panel title="Filter controls" right={bypassLPF ? "BYPASSED" : "ACTIVE"}>
             <Toggle
-              label="Bypass the filter (show the no-filter failure)"
-              subLabel="Use this to reproduce the module's 500 Hz → 100 Hz alias, then turn it off to apply decimation correctly"
+              label="Bypass the filter"
+              
               checked={bypassLPF}
               onChange={setBypassLPF}
             />

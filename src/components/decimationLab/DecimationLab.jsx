@@ -9,7 +9,7 @@ import styles from "./DecimationLab.module.css";
 
 const steps = [
   { id: 0, label: "1. Build Signal"},
-  { id: 1, label: "2. The Rule"},
+  { id: 1, label: "2. Pick M and Visualize Folding"},
   { id: 2, label: "3. Apply LPF"},
   { id: 3, label: "4. Decimate" },
 ];

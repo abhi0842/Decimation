@@ -34,9 +34,7 @@ export default function Step1Signal() {
         <div className={styles.stepNum}>1</div>
         <div>
           <div className={styles.stepTitle}>Build the input signal</div>
-          <div className={styles.stepDesc}>
-            Begin with the lecture example: a 150 Hz tone to keep and a 500 Hz tone that will alias after downsampling by 3 unless it is filtered. Then change any value and observe the result.
-          </div>
+          
         </div>
       </div>
 
@@ -73,7 +71,7 @@ export default function Step1Signal() {
                 label="Upper limit (Nyquist)"
                 value={Math.round(fs / 2) + " Hz"}
                 color="blue"
-                hint="max frequency this sampling rate can represent"
+                
               />
             </div>
           </Panel>
