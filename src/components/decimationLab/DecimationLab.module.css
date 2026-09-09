@@ -4,6 +4,8 @@
   max-width: 1180px;
   margin: 0 auto;
   padding: 24px 20px 70px;
+  width: 100%;
+  min-width: 0;
 }
 
 .hero {
@@ -143,6 +145,11 @@
 
 @media (max-width: 680px) {
   .tabLabel { display: none; }
+  .wrap { padding: 16px 12px 42px; }
+  .tabbar { margin-top: 14px; }
+  .tabbar button { flex: 0 0 auto; min-width: 52px; padding: 10px 9px; }
+  .navbtn { padding: 10px 14px; font-size: 13px; }
+  .tabfoot { align-items: stretch; }
 }
 
 .progressTrack {

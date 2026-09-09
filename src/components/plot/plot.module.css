@@ -1,5 +1,6 @@
 .plotWrap {
   width: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -20,6 +21,7 @@
   border-radius: 10px;
   border: 1px solid #c5d4f0;
   background: #f8faff;
+  min-width: 0;
 }
 
 .cvShell canvas {

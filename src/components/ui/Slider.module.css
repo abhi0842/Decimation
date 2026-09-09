@@ -1,5 +1,6 @@
 .ctrl {
   margin-bottom: 16px;
+  min-width: 0;
 }
 
 .ctrl:last-child {
@@ -14,7 +15,11 @@
   font-weight: 500;
   margin-bottom: 8px;
   color: #1a2b4a;
+  gap: 8px;
+  min-width: 0;
 }
+
+.ctrlLabel > span:first-child { min-width: 0; overflow-wrap: anywhere; }
 
 .ctrlLabel .val {
   font-family: "JetBrains Mono", monospace;
@@ -36,6 +41,7 @@
 .sliderShell {
   position: relative;
   padding-top: 6px;
+  min-width: 0;
 }
 
 .sliderBubble {
@@ -81,6 +87,7 @@ input[type="range"] {
   background: #e8f0fe;
   outline: none;
   cursor: pointer;
+  touch-action: pan-y;
 }
 
 input[type="range"]::-webkit-slider-thumb {

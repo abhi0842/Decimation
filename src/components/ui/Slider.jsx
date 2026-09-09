@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import styles from "./Slider.module.css";
 
 export default function Slider({
@@ -14,20 +14,8 @@ export default function Slider({
   accent,
   disabled = false,
 }) {
-  const shellRef = useRef(null);
-  const bubbleRef = useRef(null);
   const [dragging, setDragging] = useState(false);
-
-  useEffect(() => {
-    if (bubbleRef.current && shellRef.current) {
-      const input = shellRef.current.querySelector("input");
-      if (input) {
-        const pct = (+value - +min) / (+max - +min);
-        bubbleRef.current.style.left = pct * 100 + "%";
-        bubbleRef.current.textContent = formatter(value);
-      }
-    }
-  }, [value, min, max, formatter]);
+  const pct = Math.min(100, Math.max(0, ((+value - +min) / (+max - +min)) * 100));
 
   return (
     <div className={`${styles.ctrl} ${accent ? styles[accent] : ""}`}>
@@ -36,10 +24,9 @@ export default function Slider({
         <span className={styles.val}>{formatter(value)}</span>
       </div>
       <div
-        ref={shellRef}
         className={`${styles.sliderShell} ${dragging ? styles.dragging : ""}`}
       >
-        <div ref={bubbleRef} className={styles.sliderBubble} />
+        <div className={styles.sliderBubble} style={{ left: `${pct}%` }}>{formatter(value)}</div>
         <input
           id={id}
           type="range"
@@ -50,13 +37,11 @@ export default function Slider({
           disabled={disabled}
           onInput={(e) => {
             onChange(+e.target.value);
-            setDragging(true);
           }}
-          onChange={() => setDragging(false)}
-          onMouseUp={() => setDragging(false)}
-          onMouseLeave={() => setDragging(false)}
-          onTouchStart={() => setDragging(true)}
-          onTouchEnd={() => setDragging(false)}
+          onPointerDown={() => setDragging(true)}
+          onPointerUp={() => setDragging(false)}
+          onPointerCancel={() => setDragging(false)}
+          onBlur={() => setDragging(false)}
         />
       </div>
       {subLabel && <div className={styles.subLabel}>{subLabel}</div>}

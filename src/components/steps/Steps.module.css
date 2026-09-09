@@ -52,10 +52,12 @@
 
 .grid2 {
   display: grid;
-  grid-template-columns: 290px 1fr;
+  grid-template-columns: minmax(250px, 290px) minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
+
+.grid2 > div, .sideBySide > * { min-width: 0; }
 
 .grid2 > div > .panel + .panel {
   margin-top: 14px;
@@ -87,6 +89,19 @@
 @media (max-width: 820px) {
   .grid2 { grid-template-columns: 1fr; }
   .sideBySide { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .stepHead { padding: 14px; gap: 10px; margin-bottom: 14px; }
+  .stepTitle { font-size: 17px; }
+  .stepDesc { font-size: 13px; }
+  .stepNum { width: 34px; height: 34px; }
+  .presetsRow { grid-template-columns: 1fr; }
+  .readoutGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pipeline { padding: 12px; gap: 7px; }
+  .pipeBlock { min-width: 82px; padding: 9px 10px; font-size: 11px; }
+  .pipeArrow { font-size: 18px; }
+  .forecastRow { grid-template-columns: 1fr; gap: 2px; }
 }
 
 .btnRec {

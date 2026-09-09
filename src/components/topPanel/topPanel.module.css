@@ -9,6 +9,9 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  gap: 12px;
+  padding: 12px 16px;
+  min-width: 0;
 }
 .panelContainer h1 {
   font-size: 24px;
@@ -53,11 +56,19 @@
 }
 
 @media (max-width: 768px) {
+.panelContainer { align-items: flex-start; padding: 10px 12px; }
+.buttonContainer { flex-wrap: wrap; justify-content: flex-end; }
 .panelContainer h1 {
   font-size: 1.2rem;
   color: rgb(244, 243, 243);
   margin-left: 10px;
   text-align: left;
+}
+
+@media (max-width: 460px) {
+  .panelContainer { flex-direction: column; }
+  .buttonContainer { width: 100%; justify-content: stretch; }
+  .panelButton { flex: 1; justify-content: center; }
 }
 .panelButton {
   font-size: 0.8rem;
