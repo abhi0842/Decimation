@@ -4,8 +4,8 @@ import Step1Signal from "../steps/Step1Signal";
 import Step2Rule from "../steps/Step2Rule";
 import Step3LPF from "../steps/Step3LPF";
 import Step4Decimate from "../steps/Step4Decimate";
-import GuidedModal from "../guidedModal/GuidedModal";
-import styles from "./DecimationLab.module.css";
+import GuidedModal from "../guide/GuidedModal";
+import styles from "./decimation.module.css";
 
 const steps = [
   { id: 0, label: "1. Build Signal"},
@@ -21,6 +21,7 @@ export default function DecimationLab() {
     prevStep,
     nextStep,
     resetToRecommended,
+    canAdvance,
   } = useContext(DecimationContext);
 
   return (
@@ -33,6 +34,8 @@ export default function DecimationLab() {
             key={s.id}
             className={activeStep === s.id ? styles.active : ""}
             onClick={() => setActiveStep(s.id)}
+            disabled={s.id > activeStep + 1 || (s.id === activeStep + 1 && !canAdvance)}
+            title={s.id > activeStep ? "Complete the current step first" : undefined}
           >
             <span className={styles.tabIcon}>{s.icon}</span>
             <span className={styles.tabN}>{s.id + 1}</span>
@@ -81,7 +84,8 @@ export default function DecimationLab() {
           <button
             className={`${styles.navbtn} ${styles.next}`}
             onClick={nextStep}
-            disabled={activeStep === steps.length - 1}
+            disabled={activeStep === steps.length - 1 || !canAdvance}
+            title={!canAdvance ? "Complete the current step first" : undefined}
           >
             {activeStep === steps.length - 1 ? "Done ✓" : "Next →"}
           </button>

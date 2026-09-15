@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./plot.module.css";
-import { filterGainAt } from "../../utils/dsp";
+import { filterGainAt } from "../../utils/signalProcessing";
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();

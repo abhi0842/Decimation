@@ -1,6 +1,6 @@
 import styles from "./home.module.css";
-import TopPanel from "../../components/topPanel/TopPanel.jsx";
-import DecimationLab from "../../components/decimationLab/DecimationLab.jsx";
+import TopPanel from "../../components/layout/TopPanel.jsx";
+import DecimationLab from "../../components/decimation/DecimationLab.jsx";
 
 export const Home = () => {
   return (

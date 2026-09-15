@@ -25,7 +25,7 @@
     /* position: absolute; */
     background-color: #b3ebf1;
     border: 1px solid #00000015;
-    overflow: hidden;
+    overflow: visible;
     margin-top: 0%;
     width: 100%;
     background-color: #1a5376;

@@ -3,8 +3,8 @@ import { DecimationContext } from "../../context/DecimationContext";
 import Slider from "../ui/Slider";
 import Panel from "../ui/Panel";
 import Readout from "../ui/Readout";
-import TimePlot from "../plot/TimePlot";
-import SpectrumPlot from "../plot/SpectrumPlot";
+import TimePlot from "../visualizations/TimePlot";
+import SpectrumPlot from "../visualizations/SpectrumPlot";
 import styles from "./Steps.module.css";
 
 export default function Step1Signal() {
@@ -19,6 +19,8 @@ export default function Step1Signal() {
     presetId,
     applyPreset,
     signalPresets,
+    signalGenerated,
+    generateSignal,
   } = useContext(DecimationContext);
 
   const maxF = fs / 2;
@@ -73,6 +75,11 @@ export default function Step1Signal() {
                 color="blue"
                 
               />
+            </div>
+            <div className={styles.generateRow}>
+              <button className={styles.generateButton} onClick={generateSignal}>
+                {signalGenerated ? "Regenerate signal" : "Generate signal"}
+              </button>
             </div>
           </Panel>
 
@@ -139,35 +146,36 @@ export default function Step1Signal() {
           
         </div>
 
-        <div>
-          <Panel title="Time domain — x[n]">
-            <TimePlot
-              tones={activeTones}
-              samples={useToneSamples(activeTones, fs)}
-              fs={fs}
-              durationSec={0.03}
-              rateLabel={`${fs} Hz · ${activeTones.length} tone${
-                activeTones.length > 1 ? "s" : ""
-              }`}
-              height={175}
-            />
-          </Panel>
-          <Panel title="Frequency domain — spectrum bars">
-            <SpectrumPlot
-              tones={activeTones.map((t) => ({ ...t, label: t.id }))}
-              maxFreq={fs / 2}
-              height={195}
-              legend={legendItems.length ? legendItems : undefined}
-            />
-           
-          </Panel>
-        </div>
+        {signalGenerated && (
+          <div>
+            <Panel title="Time domain — x[n]">
+              <TimePlot
+                tones={activeTones}
+                samples={createToneSamples(activeTones, fs)}
+                fs={fs}
+                durationSec={0.03}
+                rateLabel={`${fs} Hz · ${activeTones.length} tone${
+                  activeTones.length > 1 ? "s" : ""
+                }`}
+                height={175}
+              />
+            </Panel>
+            <Panel title="Frequency domain — spectrum bars">
+              <SpectrumPlot
+                tones={activeTones.map((t) => ({ ...t, label: t.id }))}
+                maxFreq={fs / 2}
+                height={195}
+                legend={legendItems.length ? legendItems : undefined}
+              />
+            </Panel>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function useToneSamples(activeTones, fs) {
+function createToneSamples(activeTones, fs) {
   const N = Math.max(2, Math.round(fs * 0.03));
   const out = new Array(N);
   for (let n = 0; n < N; n++) {

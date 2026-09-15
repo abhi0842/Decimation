@@ -1,11 +1,11 @@
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { DecimationContext } from "../../context/DecimationContext";
 import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
 import Formula from "../ui/Formula";
 import Readout from "../ui/Readout";
-import SpectrumPlot from "../plot/SpectrumPlot";
-import DecimationSampleAnimation from "../plot/DecimationSampleAnimation";
+import SpectrumPlot from "../visualizations/SpectrumPlot";
+import DecimationSampleAnimation from "../visualizations/DecimationSampleAnimation";
 import styles from "./Steps.module.css";
 
 export default function Step4Decimate() {
@@ -18,31 +18,63 @@ export default function Step4Decimate() {
     toneResults.some((tone) => Math.round(tone.origF) === 150) &&
     toneResults.some((tone) => Math.round(tone.origF) === 500);
 
-  const rafRef = useRef(null);
+  const timerRef = useRef(null);
+  const sampleCount = Math.min(filteredSignal.length, 24);
+  const [sampleIndex, setSampleIndex] = useState(-1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [autoAdvance, setAutoAdvance] = useState(false);
+
+  const updateProgress = (index) => {
+    if (index >= sampleCount - 1) {
+      setDecimAnimProgress(1);
+      setIsPlaying(false);
+      markAction("SEE_DECI");
+      return;
+    }
+
+    const inputProgress = sampleCount <= 1 ? 1 : index / (sampleCount - 1);
+    setDecimAnimProgress(inputProgress * 0.75);
+  };
+
+  const nextSample = () => {
+    setSampleIndex((current) => {
+      const next = Math.min(current + 1, sampleCount - 1);
+      updateProgress(next);
+      return next;
+    });
+  };
+
   const playAnim = () => {
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    setDecimAnimProgress(0);
-    const start = performance.now();
-    const duration = 1800;
-    const frame = (now) => {
-      const t = Math.min(1, (now - start) / duration);
-      const eased = 1 - Math.pow(1 - t, 3);
-      setDecimAnimProgress(eased);
-      if (t < 1) rafRef.current = requestAnimationFrame(frame);
-      else {
-        setDecimAnimProgress(1);
-        rafRef.current = null;
-      }
-    };
-    rafRef.current = requestAnimationFrame(frame);
-    markAction("SEE_DECI");
+    if (sampleIndex >= sampleCount - 1) {
+      setSampleIndex(-1);
+      setDecimAnimProgress(0);
+    }
+    setIsPlaying(true);
+  };
+
+  const pauseAnim = () => {
+    setIsPlaying(false);
+  };
+
+  const toggleAuto = () => {
+    setAutoAdvance((enabled) => {
+      const nextEnabled = !enabled;
+      if (nextEnabled) setIsPlaying(true);
+      return nextEnabled;
+    });
   };
 
   useEffect(() => {
-    playAnim();
-    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (!isPlaying) return undefined;
+
+    timerRef.current = setInterval(() => {
+      nextSample();
+    }, 180);
+
+    return () => clearInterval(timerRef.current);
+  }, [isPlaying, sampleCount]);
+
+  useEffect(() => () => clearInterval(timerRef.current), []);
 
   const finalType = hasLeakage
     ? "danger"
@@ -101,16 +133,7 @@ export default function Step4Decimate() {
         </div>
       )}
 
-      <Panel title="Summary of the decimation parameters used">
-        <div className={styles.readoutGrid}>
-          <Readout label="LPF cutoff f<sub>c</sub>" value={Math.round(fcClamped) + " Hz"} color="blue" />
-          <Readout label="Filter order N" value={"N = " + orderOdd} color="blue" />
-          <Readout label="Downsample M" value={"M = " + M} color="amber" />
-          <Readout label="Output rate" value={Math.round(fsNew) + " Hz"} color="green" />
-          <Readout label="Output Nyquist" value={Math.round(nyqNew) + " Hz"} color="green" />
-          <Readout label="Samples kept" value={Math.round(100 / M) + "%"} color="green" hint={`1 out of every ${M}`} />
-        </div>
-      </Panel>
+     
 
       <div style={{ height: 14 }} />
 
@@ -118,12 +141,31 @@ export default function Step4Decimate() {
           <DecimationSampleAnimation samples={filteredSignal} M={M} progress={decimAnimProgress} />
           <div className={styles.animPanel}>
             <button className={`${styles.animBtn} ${styles.primary}`} onClick={playAnim}>
-              ▶ Replay animation
+              ▶ Play
+            </button>
+            <button className={styles.animBtn} onClick={pauseAnim} disabled={!isPlaying}>
+              ❚❚ Pause
+            </button>
+            <button
+              className={`${styles.animBtn} ${autoAdvance ? styles.selected : ""}`}
+              onClick={toggleAuto}
+              aria-pressed={autoAdvance}
+            >
+              {autoAdvance ? "Auto on" : "Auto"}
+            </button>
+            <button
+              className={styles.animBtn}
+              onClick={nextSample}
+              disabled={sampleIndex >= sampleCount - 1}
+            >
+              Next sample →
             </button>
             <div className={styles.animStatus}>
-              {decimAnimProgress < 1
-                ? `playing ${Math.round(decimAnimProgress * 100)}%`
-                : "complete ✓"}
+              {decimAnimProgress >= 1
+                ? "output visible ✓"
+                : sampleIndex < 0
+                ? "ready: choose Next or Play"
+                : `${sampleIndex + 1} of ${sampleCount} input samples classified`}
             </div>
           </div>
           <div style={{ fontSize: 12, color: "#5a6f8f", marginTop: 8, lineHeight: 1.5 }}>
@@ -149,6 +191,16 @@ export default function Step4Decimate() {
           />
         </Panel>
       </div>
+       <Panel title="Summary of the decimation parameters used">
+        <div className={styles.readoutGrid}>
+          <Readout label="LPF cutoff f<sub>c</sub>" value={Math.round(fcClamped) + " Hz"} color="blue" />
+          <Readout label="Filter order N" value={"N = " + orderOdd} color="blue" />
+          <Readout label="Downsample M" value={"M = " + M} color="amber" />
+          <Readout label="Output rate" value={Math.round(fsNew) + " Hz"} color="green" />
+          <Readout label="Output Nyquist" value={Math.round(nyqNew) + " Hz"} color="green" />
+          <Readout label="Samples kept" value={Math.round(100 / M) + "%"} color="green" hint={`1 out of every ${M}`} />
+        </div>
+      </Panel>
 
       <Panel title="Where each tone lands after LPF + ↓M">
         <div className={styles.tableWrap}>

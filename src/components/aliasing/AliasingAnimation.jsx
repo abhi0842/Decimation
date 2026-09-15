@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { foldFreq } from "../../utils/dsp";
-import styles from "../plot/plot.module.css";
+import { foldFreq } from "../../utils/signalProcessing";
+import styles from "../visualizations/plot.module.css";
 
 const W = 1000;
 const H = 276;

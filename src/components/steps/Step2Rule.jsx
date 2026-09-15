@@ -4,7 +4,7 @@ import Slider from "../ui/Slider";
 import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
 import Readout from "../ui/Readout";
-import SpectrumPlot from "../plot/SpectrumPlot";
+import SpectrumPlot from "../visualizations/SpectrumPlot";
 import AliasingAnimation from "../aliasing/AliasingAnimation";
 import styles from "./Steps.module.css";
 

@@ -1,4 +1,6 @@
 .Container {
+  position: relative;
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -48,11 +50,69 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+.panelButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.panelButton:disabled:hover {
+  background-color: #0078d4;
+}
+
 .buttonIcon {
   font-size: 1.1rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+
+.instructionPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 16px;
+  z-index: 10;
+  width: min(480px, calc(100% - 32px));
+  padding: 16px 18px;
+  color: #17324d;
+  background: #ffffff;
+  border: 1px solid #b9d0e3;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(13, 49, 77, 0.2);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.instructionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 15px;
+}
+
+.instructionPanel ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.instructionPanel li + li {
+  margin-top: 5px;
+}
+
+.instructionPanel p {
+  margin: 10px 0 0;
+  color: #49677f;
+}
+
+.instructionClose {
+  border: 0;
+  background: transparent;
+  color: #49677f;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
 }
 
 @media (max-width: 768px) {

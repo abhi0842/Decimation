@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import { DecimationContext } from "../../context/DecimationContext";
-import styles from "./GuidedModal.module.css";
+import styles from "./guide.module.css";
 
 export default function GuidedModal() {
   const {

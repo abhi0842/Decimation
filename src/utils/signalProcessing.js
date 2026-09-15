@@ -134,36 +134,6 @@ export const signalPresets = [
 
   },
   {
-    id: 'fourband',
-    name: ' Four Tones Across Bands',
-    fs: 1400,
-    tones: [
-      { id: 'A', f: 70, a: 1.0, color: '#2563eb' },
-      { id: 'B', f: 260, a: 0.9, color: '#0284c7', on: true, bExtra: { f: 500, a: 0.7 } },
-    ],
-    M: 3,
-    order: 81,
-    four: [
-      { id: 'A', f: 70, a: 1.0, color: '#2563eb' },
-      { id: 'B', f: 180, a: 0.9, color: '#0284c7' },
-      { id: 'C', f: 370, a: 0.8, color: '#d97706' },
-      { id: 'D', f: 620, a: 0.7, color: '#dc2626' },
-    ],
-  },
-  {
-    id: 'edge',
-    name: 'Near-Limit Edge Case',
-    fs: 1200,
-    tones: [
-      { id: 'A', f: 120, a: 1.0, color: '#2563eb' },
-      { id: 'B', f: 420, a: 0.9, color: '#dc2626', on: true, bExtra: { f: 190, a: 0.7 } },
-    ],
-    M: 3,
-    order: 101,
-    extra: [{ id: 'C', f: 210, a: 0.75, color: '#d97706' }],
-    
-  },
-  {
     id: 'custom',
     name: ' Custom Tones ',
     fs: 1200,

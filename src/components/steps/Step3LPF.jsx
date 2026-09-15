@@ -5,8 +5,8 @@ import Toggle from "../ui/Toggle";
 import Panel from "../ui/Panel";
 import Callout from "../ui/Callout";
 import Readout from "../ui/Readout";
-import TimePlot from "../plot/TimePlot";
-import SpectrumPlot from "../plot/SpectrumPlot";
+import TimePlot from "../visualizations/TimePlot";
+import SpectrumPlot from "../visualizations/SpectrumPlot";
 import styles from "./Steps.module.css";
 
 function makeSamples(tonesList, fs, dur = 0.03) {

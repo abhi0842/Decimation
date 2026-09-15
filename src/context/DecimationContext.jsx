@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useCallback, useRef, useState } from "react";
-import { guideSteps } from "../guideSteps";
+import { guideSteps } from "../data/guideSteps";
 import {
   designFIR,
   filteredTones,
@@ -8,9 +8,10 @@ import {
   synthesizeSamples,
   downsample,
   signalPresets,
-} from "../utils/dsp";
+} from "../utils/signalProcessing";
 
 export const DecimationContext = createContext();
+const stepRequirements = ['EXPLORE_SIGNAL', 'SET_M', 'SET_LPF', 'SEE_DECI'];
 
 function presetInitialTones(preset) {
   if (preset.four) return preset.four.map((t) => ({ ...t }));
@@ -50,9 +51,10 @@ export const DecimationProvider = ({ children }) => {
   const [fc, setFc] = useState(Math.round(startPreset.fs / startPreset.M / 2));
   const [tones, setTones] = useState(startTones);
   const [bypassLPF, setBypassLPF] = useState(false);
+  const [signalGenerated, setSignalGenerated] = useState(false);
 
   const [activeStep, setActiveStep] = useState(0);
-  const [decimAnimProgress, setDecimAnimProgress] = useState(1);
+  const [decimAnimProgress, setDecimAnimProgress] = useState(0);
 
   const [guideActive, setGuideActive] = useState(false);
   const [guideStepIdx, setGuideStepIdx] = useState(0);
@@ -65,6 +67,10 @@ export const DecimationProvider = ({ children }) => {
   const steps = guideSteps;
   const currentGuideStep = steps[guideStepIdx];
   const canProceed = !currentGuideStep?.requiredAction || !!actions[currentGuideStep.requiredAction];
+  const isStepComplete = useCallback((step) => {
+    if (step === 0) return signalGenerated;
+    return !!actions[stepRequirements[step]];
+  }, [actions, signalGenerated]);
 
   const markAction = useCallback((action) => {
     setActions((prev) => {
@@ -93,6 +99,12 @@ export const DecimationProvider = ({ children }) => {
     const newNyq = preset.fs / preset.M / 2;
     setFc(Math.round(newNyq / 5) * 5);
     setTones(newTones);
+    setSignalGenerated(false);
+    markAction('EXPLORE_SIGNAL');
+  }, [markAction]);
+
+  const generateSignal = useCallback(() => {
+    setSignalGenerated(true);
     markAction('EXPLORE_SIGNAL');
   }, [markAction]);
 
@@ -127,9 +139,14 @@ export const DecimationProvider = ({ children }) => {
   };
 
   const goToStep = useCallback((idx) => {
-    setActiveStep(Math.max(0, Math.min(3, idx)));
+    const nextIndex = Math.max(0, Math.min(3, idx));
+    const canMoveForward = nextIndex <= activeStep || (
+      nextIndex === activeStep + 1 && isStepComplete(activeStep)
+    );
+    if (!canMoveForward) return;
+    setActiveStep(nextIndex);
     setDecimAnimProgress(0);
-  }, []);
+  }, [activeStep, isStepComplete]);
 
   const nextStep = useCallback(() => {
     if (activeStep < 3) goToStep(activeStep + 1);
@@ -290,6 +307,8 @@ export const DecimationProvider = ({ children }) => {
         toneResults,
         bypassLPF,
         setBypassLPF,
+        signalGenerated,
+        generateSignal,
 
         // Navigation
         activeStep,
@@ -315,6 +334,8 @@ export const DecimationProvider = ({ children }) => {
         steps,
         currentGuideStep,
         canProceed,
+        isStepComplete,
+        canAdvance: isStepComplete(activeStep),
 
         showInstruction,
         setShowInstruction,
