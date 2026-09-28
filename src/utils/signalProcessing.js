@@ -120,30 +120,7 @@ export const signalPresets = [
     ],
     M: 3,
     order: 81,
-  },
-  {
-    id: 'picket',
-    name: ' Picket Fence (50 + 650 Hz)',
-    fs: 1500,
-    tones: [
-      { id: 'A', f: 50, a: 1.0, color: '#2563eb' },
-      { id: 'B', f: 650, a: 0.8, color: '#dc2626', on: true },
-    ],
-    M: 3,
-    order: 61,
-
-  },
-  {
-    id: 'custom',
-    name: ' Custom Tones ',
-    fs: 1200,
-    tones: [
-      { id: 'A', f: 150, a: 1.0, color: '#2563eb' },
-      { id: 'B', f: 500, a: 0.7, color: '#0284c7', on: true },
-    ],
-    M: 3,
-    order: 51,
-  },
+  }
 ];
 
 export function tonesFromPreset(preset) {
