@@ -5,6 +5,7 @@ import Panel from "../ui/Panel";
 import Readout from "../ui/Readout";
 import TimePlot from "../visualizations/TimePlot";
 import SpectrumPlot from "../visualizations/SpectrumPlot";
+import { MAX_TONE_AMPLITUDE } from "../../utils/signalProcessing";
 import styles from "./Steps.module.css";
 
 export default function Step1Signal() {
@@ -40,20 +41,7 @@ export default function Step1Signal() {
         </div>
       </div>
 
-      <div className={styles.presetsRow}>
-        {signalPresets.map((p) => (
-          <button
-            key={p.id}
-            className={`${styles.preset} ${presetId === p.id ? styles.presetActive : ""}`}
-            onClick={() => applyPreset(p.id)}
-          >
-            <div className={styles.presetName}>{p.name}</div>
-            {p.id !== "custom" && (
-              <div className={styles.presetStory}>{p.story}</div>
-            )}
-          </button>
-        ))}
-      </div>
+     
 
       <div className={styles.grid2}>
         <div>
@@ -134,7 +122,7 @@ export default function Step1Signal() {
                   label="Amplitude"
                   value={t.a}
                   min={0.1}
-                  max={1.5}
+                  max={MAX_TONE_AMPLITUDE}
                   step={0.05}
                   onChange={(v) => updateTone(t.id, { a: v })}
                   formatter={(v) => (+v).toFixed(2)}

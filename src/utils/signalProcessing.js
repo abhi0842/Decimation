@@ -1,3 +1,5 @@
+export const MAX_TONE_AMPLITUDE = 1.5;
+
 export function designFIR(order, fc, fs) {
   const N = order | 1;
   const M = (N - 1) / 2;

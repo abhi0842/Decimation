@@ -12,6 +12,7 @@ import {
 
 export const DecimationContext = createContext();
 const stepRequirements = ['EXPLORE_SIGNAL', 'SET_M', 'SET_LPF', 'SEE_DECI'];
+const MIN_OUTPUT_TONE_GAIN = 0.03;
 
 function presetInitialTones(preset) {
   if (preset.four) return preset.four.map((t) => ({ ...t }));
@@ -188,13 +189,13 @@ export const DecimationProvider = ({ children }) => {
   );
   const decimatedSignal = downsample(filteredSignal, M);
 
-  const survivingTones = fTones.filter((t) => t.gain > 0.015);
+  const survivingTones = fTones.filter((t) => t.gain > MIN_OUTPUT_TONE_GAIN);
   const outTones = [];
   survivingTones.forEach((t) => {
     if (t.f <= nyqNew + 3) {
       // filteredTones already applies |H(f)| to `a`; do not attenuate twice.
       outTones.push({ f: t.f, a: t.a, color: t.color, label: t.id });
-    } else if (t.gain > 0.05) {
+    } else if (t.gain > MIN_OUTPUT_TONE_GAIN) {
       const landed = foldFreq(t.f, fsNew);
       outTones.push({
         f: landed,
@@ -230,7 +231,7 @@ export const DecimationProvider = ({ children }) => {
 
   const hasLeakage = bypassLPF
     ? bypassOutTones.some((t) => t.glow)
-    : fTones.some((t) => t.f > nyqNew && t.gain > 0.05);
+    : fTones.some((t) => t.f > nyqNew && t.gain > MIN_OUTPUT_TONE_GAIN);
   const overCount = activeTones.filter((t) => t.f > nyqNew).length;
 
   const toneResults = activeTones.map((t) => {
@@ -238,7 +239,7 @@ export const DecimationProvider = ({ children }) => {
     const over = t.f > nyqNew;
     const gainPct = Math.round(ft.gain * 100);
     let afterLpf;
-    if (ft.gain < 0.03) {
+    if (ft.gain <= MIN_OUTPUT_TONE_GAIN) {
       afterLpf = { status: 'removed', text: 'removed' };
     } else {
       afterLpf = {
@@ -247,7 +248,7 @@ export const DecimationProvider = ({ children }) => {
       };
     }
     let afterDec;
-    if (ft.gain < 0.03) {
+    if (ft.gain <= MIN_OUTPUT_TONE_GAIN) {
       afterDec = { status: 'gone', text: 'gone' };
     } else if (over) {
       afterDec = {

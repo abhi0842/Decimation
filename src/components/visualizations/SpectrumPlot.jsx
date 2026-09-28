@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./plot.module.css";
-import { filterGainAt } from "../../utils/signalProcessing";
+import { filterGainAt, MAX_TONE_AMPLITUDE } from "../../utils/signalProcessing";
 
 function roundRect(ctx, x, y, w, h, r) {
   ctx.beginPath();
@@ -79,6 +79,7 @@ export default function SpectrumPlot({
       padT = 16;
     const plotW = w - padL - 10;
     const plotH = h - padB - padT;
+    const amplitudeMax = Math.max(...tones.map((tone) => tone.a), MAX_TONE_AMPLITUDE);
 
     metaRef.current = { padL, padB, padT, plotW, plotH, w, h, maxFreq, tones };
     
@@ -87,7 +88,7 @@ export default function SpectrumPlot({
     ctx.fillStyle = "#94a3b8";
     ctx.font = '9.5px "JetBrains Mono", monospace';
     ctx.textAlign = "right";
-    const yTicks = 4;
+    const yTicks = 3;
     for (let i = 0; i <= yTicks; i++) {
       const frac = i / yTicks;
       const y = padT + plotH * (1 - frac);
@@ -99,7 +100,7 @@ export default function SpectrumPlot({
       ctx.stroke();
       ctx.setLineDash([]);
       ctx.fillStyle = "#94a3b8";
-      ctx.fillText((frac).toFixed(1), padL - 6, y + 3.5);
+      ctx.fillText((frac * amplitudeMax).toFixed(1), padL - 6, y + 3.5);
     }
     ctx.fillStyle = "#5a6f8f";
     ctx.font = "10px Inter, sans-serif";
@@ -162,7 +163,7 @@ export default function SpectrumPlot({
         const f = (i / steps) * maxFreq;
         const g = filterGainAt(filterH, f, fs);
         const x = padL + (f / maxFreq) * plotW;
-        const y = h - padB - Math.min(1, g) * (plotH - 8);
+        const y = h - padB - Math.min(1, g / amplitudeMax) * (plotH - 8);
         if (i === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
@@ -179,11 +180,10 @@ export default function SpectrumPlot({
     ctx.beginPath();
     ctx.rect(padL, padT, w - 10 - padL, h - padB - padT);
     ctx.clip();
-    const maxAmp = Math.max(...tones.map((t) => t.a), 0.001, 1);
     tones.forEach((t) => {
       if (t.f > maxFreq || t.f == null) return;
       const xCenter = padL + (t.f / maxFreq) * plotW;
-      const ampNorm = Math.max(t.a / maxAmp, 0.04);
+      const ampNorm = t.a / amplitudeMax;
       const y0 = h - padB;
       const y1 = y0 - ampNorm * (plotH - 20);
       const bw = Math.min(barWidth, plotW / Math.max(tones.length + 1, 4));

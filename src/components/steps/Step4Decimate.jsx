@@ -98,7 +98,7 @@ export default function Step4Decimate() {
       <div className={styles.stepHead}>
         <div className={styles.stepNum}>4</div>
         <div>
-          <div className={styles.stepTitle}>Decimate the filtered signal</div>
+          <div className={styles.stepTitle}>Downsample the filtered signal</div>
          
         </div>
       </div>
